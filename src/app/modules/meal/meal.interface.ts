@@ -6,8 +6,19 @@ export interface IMeal {
   price: number;
   image?: string | undefined;
   isAvailable: boolean;
-  categoryId: string;
-  providerId: string;
+  categoryId?: string;
+  providerId?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export type UpdateMealPayload = {
+  name?: string;
+  description?: string;
+  price?: number;
+  image?: string;
+  isAvailable?: boolean;
+  calories?: number;
+  ingredients?: string[];
+  categoryId?: string;
+};

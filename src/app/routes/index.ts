@@ -23,10 +23,6 @@ const moduleRoutes = [
     path: "/meals",
     routes: MealRoutes,
   },
-  {
-    path: "/providers",
-    routes: ProviderRoutes,
-  },
 ];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.routes));

@@ -15,4 +15,28 @@ export const MealValidation = {
       categoryId: z.string().uuid("Category ID must be a valid UUID"),
     }),
   }),
+  mealUpdateZodSchema: z.object({
+    body: z.object({
+      name: z
+        .string()
+        .min(2, "Name must be at least 2 characters long")
+        .optional(),
+      calories: z
+        .number()
+        .min(0, "Calories must be a positive number")
+        .optional(),
+      ingredients: z
+        .array(z.string())
+        .min(1, "At least one ingredient is required")
+        .optional(),
+      description: z.string().optional(),
+      price: z.number().min(0, "Price must be a positive number").optional(),
+      image: z.string().url("Image must be a valid URL").optional(),
+      isAvailable: z.boolean().optional(),
+      categoryId: z
+        .string()
+        .uuid("Category ID must be a valid UUID")
+        .optional(),
+    }),
+  }),
 };
