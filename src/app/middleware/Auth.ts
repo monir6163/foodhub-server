@@ -4,20 +4,6 @@ import { StatusCodes } from "http-status-codes";
 import { UserRole, UserStatus } from "../../../generated/prisma/browser";
 import { auth } from "../../utils/auth";
 import ApiError from "../errors/ApiError";
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        name: string;
-        email: string;
-        role: UserRole;
-        phone: string;
-        status: UserStatus;
-      };
-    }
-  }
-}
 
 const authMiddleware = (...roles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -37,6 +23,8 @@ const authMiddleware = (...roles: string[]) => {
         role: session.user.role as UserRole,
         phone: session.user.phone as string,
         status: session.user.status as UserStatus,
+        createdAt: session.user.createdAt,
+        updatedAt: session.user.updatedAt,
       };
       if (roles.length && !roles.includes(req?.user?.role)) {
         throw new ApiError(
