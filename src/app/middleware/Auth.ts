@@ -1,22 +1,34 @@
 import { fromNodeHeaders } from "better-auth/node";
 import { NextFunction, Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
 import { UserRole, UserStatus } from "../../../generated/prisma/browser";
 import { auth } from "../../utils/auth";
+import ApiError from "../errors/ApiError";
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        name: string;
+        email: string;
+        role: UserRole;
+        phone: string;
+        status: UserStatus;
+      };
+    }
+  }
+}
 
 const authMiddleware = (...roles: string[]) => {
-  return async (
-    req: Request & { user?: any },
-    res: Response,
-    next: NextFunction,
-  ) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const headers = fromNodeHeaders(req.headers);
       const session = await auth.api.getSession({ headers });
       if (!session || !session.user) {
-        return res.status(401).json({
-          success: false,
-          message: "You are not authorized!",
-        });
+        throw new ApiError(
+          StatusCodes.UNAUTHORIZED,
+          "Unauthorized! Please log in to access this resource.",
+        );
       }
       req.user = {
         id: session.user.id,
@@ -27,10 +39,10 @@ const authMiddleware = (...roles: string[]) => {
         status: session.user.status as UserStatus,
       };
       if (roles.length && !roles.includes(req?.user?.role)) {
-        return res.status(403).json({
-          success: false,
-          message: "Access Forbidden! You don't have permission.",
-        });
+        throw new ApiError(
+          StatusCodes.FORBIDDEN,
+          "Access Forbidden! You don't have permission.",
+        );
       }
       next();
     } catch (err) {

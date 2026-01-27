@@ -5,6 +5,7 @@ import { StatusCodes } from "http-status-codes";
 import globalErrorHandler from "./app/middleware/GlobalErrorHandler";
 import logger from "./app/middleware/Logger";
 import notFound from "./app/middleware/NotFound";
+import routes from "./app/routes";
 import sendResponse from "./shared/sendResponse";
 import { auth } from "./utils/auth";
 
@@ -42,7 +43,7 @@ app.get("/", (req, res) => {
   res.end();
 });
 
-// app.use("/api", routes);
+app.use("/api", routes);
 
 app.use(globalErrorHandler);
 
