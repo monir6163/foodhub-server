@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
+import paginationSortingHelper from "../../../helper/PaginationSortingHelper";
 import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
-import { IMeal } from "./meal.interface";
+import { IMeal, MealFilterPayload, MealListResponse } from "./meal.interface";
 import { MealService } from "./meal.service";
 
 const createMeal = catchAsync(async (req: Request, res: Response) => {
@@ -17,8 +18,19 @@ const createMeal = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllMeals = catchAsync(async (req: Request, res: Response) => {
-  const result = await MealService.getAllMeals();
-  sendResponse<IMeal[]>(res, {
+  const payload = req.query as unknown as MealFilterPayload;
+  const { page, limit, skip, totalPages, sortBy, sortOrder } =
+    paginationSortingHelper(payload);
+  const result = await MealService.getAllMeals({
+    ...payload,
+    page,
+    limit,
+    skip,
+    totalPages,
+    ...(sortBy && { sortBy }),
+    ...(sortOrder && { sortOrder }),
+  });
+  sendResponse<MealListResponse>(res, {
     statusCode: StatusCodes.OK,
     success: true,
     message: "Meals retrieved successfully",

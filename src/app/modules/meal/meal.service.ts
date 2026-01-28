@@ -1,7 +1,13 @@
 import { StatusCodes } from "http-status-codes";
+import { buildMealQueryCondition } from "../../../helper/QueryHelper";
 import { prisma } from "../../../utils/prisma";
 import ApiError from "../../errors/ApiError";
-import { IMeal, UpdateMealPayload } from "./meal.interface";
+import {
+  IMeal,
+  MealFilterPayload,
+  MealListResponse,
+  UpdateMealPayload,
+} from "./meal.interface";
 
 const createMeal = async (payload: IMeal & { userId?: string }) => {
   const {
@@ -55,14 +61,33 @@ const createMeal = async (payload: IMeal & { userId?: string }) => {
   return result as IMeal;
 };
 
-const getAllMeals = async (): Promise<IMeal[]> => {
+const getAllMeals = async (
+  payload: MealFilterPayload,
+): Promise<MealListResponse> => {
+  console.log(payload);
   const meals = await prisma.meal.findMany({
-    orderBy: { createdAt: "desc" },
+    take: Number(payload.limit),
+    skip: Number(payload.skip),
+    where: buildMealQueryCondition(payload),
+    ...(payload.sortBy && { orderBy: { [payload.sortBy]: payload.sortOrder } }),
+  });
+  const total = await prisma.meal.count({
+    where: buildMealQueryCondition(payload),
   });
   if (!meals || meals.length === 0) {
     throw new ApiError(StatusCodes.NOT_FOUND, "No meals found");
   }
-  return meals as IMeal[];
+  return {
+    data: meals as IMeal[],
+    pagination: {
+      total,
+      ...(payload.page !== undefined && { page: payload.page }),
+      ...(payload.limit !== undefined && { limit: payload.limit }),
+      ...(payload.totalPages !== undefined && {
+        totalPages: payload.totalPages,
+      }),
+    },
+  };
 };
 
 const getMealsById = async (mealId: string) => {

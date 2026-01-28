@@ -31,3 +31,29 @@ export type UpdateMealPayload = {
   mealType?: string;
   spiceLevel?: string;
 };
+
+// Filter meals by cuisine, dietary preferences, and price
+
+export interface MealFilterPayload {
+  dietary?: string;
+  cuisine?: string;
+  mealType?: string;
+  spiceLevel?: string;
+  page?: number;
+  limit?: number;
+  skip?: number;
+  totalPages?: number;
+  totalItems?: number;
+  sortBy?: "price" | "calories" | "name" | "createdAt";
+  sortOrder?: "asc" | "desc";
+}
+
+export interface MealListResponse {
+  data: IMeal[];
+  pagination: {
+    total: number;
+    page?: number;
+    limit?: number;
+    totalPages?: number;
+  };
+}
