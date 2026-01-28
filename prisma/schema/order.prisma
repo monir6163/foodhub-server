@@ -16,9 +16,10 @@ model Order {
 }
 
 enum OrderStatus {
-  PLACED
-  PREPARING
-  READY
+  PENDING
+  ACCEPTED
+  COOKING
+  ON_THE_WAY
   DELIVERED
   CANCELLED
 }

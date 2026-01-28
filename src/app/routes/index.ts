@@ -1,6 +1,7 @@
 import express from "express";
 import { CategoryRoutes } from "../modules/category/category.route";
 import { MealRoutes } from "../modules/meal/meal.route";
+import { OrderRoutes } from "../modules/order/order.route";
 import { ProviderRoutes } from "../modules/provider/provider.route";
 import { UserRoutes } from "../modules/user/user.route";
 
@@ -22,6 +23,10 @@ const moduleRoutes = [
   {
     path: "/meals",
     routes: MealRoutes,
+  },
+  {
+    path: "/orders",
+    routes: OrderRoutes,
   },
 ];
 
