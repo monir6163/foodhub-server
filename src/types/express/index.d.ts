@@ -10,6 +10,7 @@ declare global {
         role: UserRole;
         phone: string;
         status: UserStatus;
+        emailVerified: boolean;
         createdAt?: Date;
         updatedAt?: Date;
       };

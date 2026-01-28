@@ -16,6 +16,19 @@ const authMiddleware = (...roles: string[]) => {
           "Unauthorized! Please log in to access this resource.",
         );
       }
+      if (session.user.emailVerified === false) {
+        throw new ApiError(
+          StatusCodes.FORBIDDEN,
+          "Please verify your email to access this resource.",
+        );
+      }
+      if (session.user.status === UserStatus.inactive) {
+        throw new ApiError(
+          StatusCodes.FORBIDDEN,
+          "Your account has been blocked. Please contact support.",
+        );
+      }
+
       req.user = {
         id: session.user.id,
         name: session.user.name,
@@ -23,6 +36,7 @@ const authMiddleware = (...roles: string[]) => {
         role: session.user.role as UserRole,
         phone: session.user.phone as string,
         status: session.user.status as UserStatus,
+        emailVerified: session.user.emailVerified as boolean,
         createdAt: session.user.createdAt,
         updatedAt: session.user.updatedAt,
       };

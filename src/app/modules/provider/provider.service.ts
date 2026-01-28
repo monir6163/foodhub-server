@@ -93,7 +93,7 @@ const getAllProviders = async () => {
 // View provider profiles with menus
 const getProviderById = async (providerId: string) => {
   const provider = await prisma.providerProfile.findUnique({
-    where: { id: providerId },
+    where: { userId: providerId },
     include: {
       user: {
         select: {
