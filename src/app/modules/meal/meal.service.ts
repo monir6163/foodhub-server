@@ -28,7 +28,7 @@ const createMeal = async (payload: IMeal & { userId?: string }) => {
 
   const result = await prisma.$transaction(async (tx) => {
     const providerFind = await tx.providerProfile.findUnique({
-      where: { userId: userId },
+      where: { userId: userId as string },
     });
 
     if (!providerFind) {
