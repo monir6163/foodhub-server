@@ -13,6 +13,10 @@ const createMeal = async (payload: IMeal & { userId?: string }) => {
     image,
     isAvailable,
     categoryId,
+    dietary,
+    cuisine,
+    mealType,
+    spiceLevel,
     userId,
   } = payload;
 
@@ -20,6 +24,14 @@ const createMeal = async (payload: IMeal & { userId?: string }) => {
     const providerFind = await tx.providerProfile.findUnique({
       where: { userId: userId },
     });
+
+    if (!providerFind) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        "Provider profile not found for this user",
+      );
+    }
+
     const data = await tx.meal.create({
       data: {
         name,
@@ -30,7 +42,11 @@ const createMeal = async (payload: IMeal & { userId?: string }) => {
         image: image ?? null,
         isAvailable,
         categoryId,
-        providerId: providerFind?.id,
+        providerId: providerFind.id,
+        dietary,
+        cuisine,
+        mealType,
+        spiceLevel,
       },
     });
     return data;

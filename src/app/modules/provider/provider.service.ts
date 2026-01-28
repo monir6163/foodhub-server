@@ -60,6 +60,7 @@ const createProviderProfile = async (payload: IProviderProfile) => {
   return data;
 };
 
+// Browse all providers
 const getAllProviders = async () => {
   const providers = await prisma.providerProfile.findMany({
     include: {
@@ -89,7 +90,7 @@ const getAllProviders = async () => {
 
   return providers;
 };
-
+// View provider profiles with menus
 const getProviderById = async (providerId: string) => {
   const provider = await prisma.providerProfile.findUnique({
     where: { id: providerId },
@@ -108,6 +109,12 @@ const getProviderById = async (providerId: string) => {
           name: true,
           price: true,
           isAvailable: true,
+          category: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
       },
     },
