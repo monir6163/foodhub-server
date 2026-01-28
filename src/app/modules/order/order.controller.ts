@@ -1,18 +1,46 @@
 import { Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
 import catchAsync from "../../../shared/catchAsync";
+import sendResponse from "../../../shared/sendResponse";
 import { OrderService } from "./order.service";
 
 const createOrder = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id as string;
   const orderData = req.body;
   const result = await OrderService.createOrder(orderData, userId);
-  res.status(201).json({
+  sendResponse(res, {
+    statusCode: StatusCodes.CREATED,
     success: true,
     message: "Order created successfully",
     data: result,
   });
 });
 
+const getMyOrders = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id as string;
+  const result = await OrderService.getMyOrders(userId);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Orders retrieved successfully",
+    data: result,
+  });
+});
+
+const getOrderById = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id as string;
+  const orderId = req.params.id as string;
+  const result = await OrderService.getOrderById(orderId, userId);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Order retrieved successfully",
+    data: result,
+  });
+});
+
 export const OrderController = {
   createOrder,
+  getMyOrders,
+  getOrderById,
 };
