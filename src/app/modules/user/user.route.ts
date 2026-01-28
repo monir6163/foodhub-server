@@ -13,4 +13,10 @@ router.get(
 
 router.get("/", authMiddleware(UserRole.admin), UserController.getAllUsers);
 
+router.patch(
+  "/:id",
+  authMiddleware(UserRole.admin),
+  UserController.updateUserStatus,
+);
+
 export const UserRoutes = router;

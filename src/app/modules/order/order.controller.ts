@@ -39,8 +39,26 @@ const getOrderById = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateOrderStatus = catchAsync(async (req: Request, res: Response) => {
+  const orderId = req.params.id as string;
+  const status = req.body.status as string;
+  const providerId = req.user?.id as string;
+  const result = await OrderService.updateOrderStatus(
+    orderId,
+    status,
+    providerId,
+  );
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Order status updated successfully",
+    data: result,
+  });
+});
+
 export const OrderController = {
   createOrder,
   getMyOrders,
   getOrderById,
+  updateOrderStatus,
 };

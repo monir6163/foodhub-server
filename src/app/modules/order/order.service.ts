@@ -95,8 +95,46 @@ const getOrderById = async (orderId: string, customerId: string) => {
   return order;
 };
 
+const updateOrderStatus = async (
+  orderId: string,
+  status: string,
+  providerId: string,
+) => {
+  const order = await prisma.order.findFirst({
+    where: {
+      id: orderId,
+      providerId: providerId,
+    },
+  });
+
+  if (!order) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "Order not found");
+  }
+
+  const updatedOrder = await prisma.order.update({
+    where: {
+      id: orderId,
+    },
+    data: {
+      status: status as OrderStatus,
+    },
+    include: {
+      items: {
+        include: {
+          meal: {
+            select: { id: true, name: true, price: true },
+          },
+        },
+      },
+    },
+  });
+
+  return updatedOrder;
+};
+
 export const OrderService = {
   createOrder,
   getMyOrders,
   getOrderById,
+  updateOrderStatus,
 };

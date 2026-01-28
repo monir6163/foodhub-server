@@ -1,4 +1,5 @@
 import { Request } from "express";
+import { UserStatus } from "../../../../generated/prisma/enums";
 import { prisma } from "../../../utils/prisma";
 import { IUser } from "./user.interface";
 
@@ -13,7 +14,16 @@ const getAllUsers = async () => {
   return (users as IUser[]) || [];
 };
 
+const updateUserStatus = async (userId: string, newStatus: UserStatus) => {
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: { status: newStatus },
+  });
+  return updatedUser as IUser;
+};
+
 export const UserService = {
   getCurrentUser,
   getAllUsers,
+  updateUserStatus,
 };
