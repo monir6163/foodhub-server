@@ -14,7 +14,6 @@ async function connection() {
   try {
     await prisma.$connect();
     console.log("DB is connected succesfully ....!!");
-    // await AdminCreateInitialData();
     server = app.listen(config.port, () => {
       console.log(`Application is listening on port ${config.port}`);
     });
