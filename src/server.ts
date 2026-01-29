@@ -1,6 +1,5 @@
 import { Server } from "http";
 import app from "./app";
-import config from "./config/index";
 import { prisma } from "./utils/prisma";
 
 process.on("uncaughtException", (error) => {
@@ -14,8 +13,8 @@ async function connection() {
   try {
     await prisma.$connect();
     console.log("DB is connected succesfully ....!!");
-    server = app.listen(config.port, () => {
-      console.log(`Application is listening on port ${config.port}`);
+    server = app.listen(process.env.PORT, () => {
+      console.log(`Application is listening on port ${process.env.PORT}`);
     });
   } catch (err) {
     console.log("server connection error", err);
