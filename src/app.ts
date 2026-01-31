@@ -1,5 +1,6 @@
 import { toNodeHandler } from "better-auth/node";
 import cors from "cors";
+import dotenv from "dotenv";
 import express, { Application } from "express";
 import { StatusCodes } from "http-status-codes";
 import globalErrorHandler from "./app/middleware/GlobalErrorHandler";
@@ -9,13 +10,13 @@ import routes from "./app/routes";
 import sendResponse from "./shared/sendResponse";
 import { auth } from "./utils/auth";
 
+dotenv.config();
+
 const app: Application = express();
 
 app.use(
   cors({
     origin: process.env.CORS_ORIGIN,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   }),
 );

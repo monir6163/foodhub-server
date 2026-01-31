@@ -61,6 +61,7 @@ var require_enums = __commonJS({
 // src/app.ts
 import { toNodeHandler } from "better-auth/node";
 import cors from "cors";
+import dotenv from "dotenv";
 import express7 from "express";
 import { StatusCodes as StatusCodes13 } from "http-status-codes";
 
@@ -1699,12 +1700,11 @@ moduleRoutes.forEach((route) => router6.use(route.path, route.routes));
 var routes_default = router6;
 
 // src/app.ts
+dotenv.config();
 var app = express7();
 app.use(
   cors({
     origin: process.env.CORS_ORIGIN,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true
   })
 );
