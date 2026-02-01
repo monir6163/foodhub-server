@@ -4,6 +4,9 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __esm = (fn, res) => function __init() {
+  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+};
 var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
@@ -29,10 +32,20 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
+// node_modules/tsup/assets/esm_shims.js
+import path from "path";
+import { fileURLToPath } from "url";
+var init_esm_shims = __esm({
+  "node_modules/tsup/assets/esm_shims.js"() {
+    "use strict";
+  }
+});
+
 // generated/prisma/enums.js
 var require_enums = __commonJS({
   "generated/prisma/enums.js"(exports) {
     "use strict";
+    init_esm_shims();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.PaymentType = exports.OrderStatus = exports.UserStatus = exports.UserRole = void 0;
     exports.UserRole = {
@@ -58,7 +71,11 @@ var require_enums = __commonJS({
   }
 });
 
+// src/server.ts
+init_esm_shims();
+
 // src/app.ts
+init_esm_shims();
 import { toNodeHandler } from "better-auth/node";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -66,10 +83,12 @@ import express7 from "express";
 import { StatusCodes as StatusCodes13 } from "http-status-codes";
 
 // src/app/middleware/GlobalErrorHandler.ts
+init_esm_shims();
 import { StatusCodes } from "http-status-codes";
 import { ZodError } from "zod";
 
 // src/app/middleware/handleZodError.ts
+init_esm_shims();
 var handleZodError = (error) => {
   return error.issues.map((issue) => {
     return {
@@ -107,6 +126,7 @@ var globalErrorHandler = (err, req, res, next) => {
 var GlobalErrorHandler_default = globalErrorHandler;
 
 // src/app/middleware/Logger.ts
+init_esm_shims();
 var logger = (req, res, next) => {
   const start = Date.now();
   console.log(
@@ -123,6 +143,7 @@ var logger = (req, res, next) => {
 var Logger_default = logger;
 
 // src/app/middleware/NotFound.ts
+init_esm_shims();
 import { StatusCodes as StatusCodes2 } from "http-status-codes";
 var notFound = (req, res, next) => {
   res.status(StatusCodes2.NOT_FOUND).json({
@@ -140,12 +161,15 @@ var notFound = (req, res, next) => {
 var NotFound_default = notFound;
 
 // src/app/routes/index.ts
+init_esm_shims();
 import express6 from "express";
 
 // src/app/modules/category/category.route.ts
+init_esm_shims();
 import express from "express";
 
 // generated/prisma/enums.ts
+init_esm_shims();
 var UserRole = {
   admin: "admin",
   customer: "customer",
@@ -157,6 +181,7 @@ var UserStatus = {
 };
 
 // src/app/middleware/Auth.ts
+init_esm_shims();
 import { fromNodeHeaders } from "better-auth/node";
 import { StatusCodes as StatusCodes3 } from "http-status-codes";
 
@@ -166,6 +191,7 @@ __export(browser_exports, {
   $Enums: () => $Enums,
   Prisma: () => prismaNamespaceBrowser_exports
 });
+init_esm_shims();
 
 // generated/prisma/internal/prismaNamespaceBrowser.ts
 var prismaNamespaceBrowser_exports = {};
@@ -191,6 +217,7 @@ __export(prismaNamespaceBrowser_exports, {
   UserScalarFieldEnum: () => UserScalarFieldEnum,
   VerificationScalarFieldEnum: () => VerificationScalarFieldEnum
 });
+init_esm_shims();
 import * as runtime from "@prisma/client/runtime/index-browser";
 var Decimal2 = runtime.Decimal;
 var NullTypes2 = {
@@ -345,10 +372,12 @@ var $Enums = __toESM(require_enums());
 __reExport(browser_exports, __toESM(require_enums()));
 
 // src/utils/auth.ts
+init_esm_shims();
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 
 // src/utils/prisma.ts
+init_esm_shims();
 import { PrismaPg } from "@prisma/adapter-pg";
 import "dotenv/config";
 
@@ -359,10 +388,12 @@ __export(client_exports, {
   Prisma: () => prismaNamespace_exports,
   PrismaClient: () => PrismaClient
 });
-import * as path from "path";
-import { fileURLToPath } from "url";
+init_esm_shims();
+import * as path2 from "path";
+import { fileURLToPath as fileURLToPath2 } from "url";
 
 // generated/prisma/internal/class.ts
+init_esm_shims();
 import * as runtime2 from "@prisma/client/runtime/client";
 var config = {
   "previewFeatures": [],
@@ -431,6 +462,7 @@ __export(prismaNamespace_exports, {
   raw: () => raw2,
   sql: () => sql
 });
+init_esm_shims();
 import * as runtime3 from "@prisma/client/runtime/client";
 var PrismaClientKnownRequestError2 = runtime3.PrismaClientKnownRequestError;
 var PrismaClientUnknownRequestError2 = runtime3.PrismaClientUnknownRequestError;
@@ -599,7 +631,7 @@ var defineExtension = runtime3.Extensions.defineExtension;
 // generated/prisma/client.ts
 var $Enums2 = __toESM(require_enums());
 __reExport(client_exports, __toESM(require_enums()));
-globalThis["__dirname"] = path.dirname(fileURLToPath(import.meta.url));
+globalThis["__dirname"] = path2.dirname(fileURLToPath2(import.meta.url));
 var PrismaClient = getPrismaClientClass();
 
 // src/utils/prisma.ts
@@ -640,6 +672,7 @@ var auth = betterAuth({
 });
 
 // src/app/errors/ApiError.ts
+init_esm_shims();
 var ApiError = class extends Error {
   statusCode;
   errors;
@@ -700,6 +733,7 @@ var authMiddleware = (...roles) => {
 var Auth_default = authMiddleware;
 
 // src/app/middleware/ValidateRequest.ts
+init_esm_shims();
 var validateRequest = (schema) => async (req, res, next) => {
   try {
     await schema.parseAsync({
@@ -715,9 +749,11 @@ var validateRequest = (schema) => async (req, res, next) => {
 var ValidateRequest_default = validateRequest;
 
 // src/app/modules/category/category.controller.ts
+init_esm_shims();
 import { StatusCodes as StatusCodes5 } from "http-status-codes";
 
 // src/shared/catchAsync.ts
+init_esm_shims();
 var catchAsync = (fn) => {
   return async (req, res, next) => {
     try {
@@ -730,6 +766,7 @@ var catchAsync = (fn) => {
 var catchAsync_default = catchAsync;
 
 // src/shared/sendResponse.ts
+init_esm_shims();
 var sendResponse = (res, jsonData) => {
   const response = {
     success: jsonData.success
@@ -744,6 +781,7 @@ var sendResponse = (res, jsonData) => {
 var sendResponse_default = sendResponse;
 
 // src/app/modules/category/category.service.ts
+init_esm_shims();
 import { StatusCodes as StatusCodes4 } from "http-status-codes";
 import slugify from "slugify";
 var createCategory = async (payload) => {
@@ -801,6 +839,7 @@ var CategoryController = {
 };
 
 // src/app/modules/category/category.validation.ts
+init_esm_shims();
 import z from "zod";
 var CategoryValidation = {
   categoryZodSchema: z.object({
@@ -822,12 +861,15 @@ router.get("/", CategoryController.getAllCategories);
 var CategoryRoutes = router;
 
 // src/app/modules/meal/meal.route.ts
+init_esm_shims();
 import express2 from "express";
 
 // src/app/modules/meal/meal.controller.ts
+init_esm_shims();
 import { StatusCodes as StatusCodes7 } from "http-status-codes";
 
 // src/helper/PaginationSortingHelper.ts
+init_esm_shims();
 var paginationSortingHelper = (options) => {
   const page = Number(options.page) || 1;
   const limit = Number(options.limit) || 10;
@@ -847,9 +889,11 @@ var paginationSortingHelper = (options) => {
 var PaginationSortingHelper_default = paginationSortingHelper;
 
 // src/app/modules/meal/meal.service.ts
+init_esm_shims();
 import { StatusCodes as StatusCodes6 } from "http-status-codes";
 
 // src/helper/QueryHelper.ts
+init_esm_shims();
 var buildMealQueryCondition = (payload) => {
   const andConditions = [];
   if (payload.cuisine) {
@@ -1099,6 +1143,7 @@ var MealController = {
 };
 
 // src/app/modules/meal/meal.validation.ts
+init_esm_shims();
 import z2 from "zod";
 var MealValidation = {
   mealCreateZodSchema: z2.object({
@@ -1155,12 +1200,15 @@ router2.delete(
 var MealRoutes = router2;
 
 // src/app/modules/order/order.route.ts
+init_esm_shims();
 import express3 from "express";
 
 // src/app/modules/order/order.controller.ts
+init_esm_shims();
 import { StatusCodes as StatusCodes9 } from "http-status-codes";
 
 // src/app/modules/order/order.service.ts
+init_esm_shims();
 import { StatusCodes as StatusCodes8 } from "http-status-codes";
 var createOrder = async (payload, customerId) => {
   const mealsId = payload.items.map((item) => item.mealId);
@@ -1335,6 +1383,7 @@ var OrderController = {
 };
 
 // src/app/modules/order/order.validation.ts
+init_esm_shims();
 import { z as z3 } from "zod";
 var OrderValidation = {
   createOrderSchema: z3.object({
@@ -1386,12 +1435,15 @@ router3.post(
 var OrderRoutes = router3;
 
 // src/app/modules/provider/provider.route.ts
+init_esm_shims();
 import express4 from "express";
 
 // src/app/modules/provider/provider.controller.ts
+init_esm_shims();
 import { StatusCodes as StatusCodes11 } from "http-status-codes";
 
 // src/app/modules/provider/provider.service.ts
+init_esm_shims();
 import { StatusCodes as StatusCodes10 } from "http-status-codes";
 var createProviderProfile = async (payload) => {
   const { userId, shopName, description, address, phone, isOpen } = payload;
@@ -1556,6 +1608,7 @@ var ProviderController = {
 };
 
 // src/app/modules/provider/provider.validation.ts
+init_esm_shims();
 import { z as z4 } from "zod";
 var createProviderProfileZodSchema = z4.object({
   body: z4.object({
@@ -1593,12 +1646,15 @@ router4.post(
 var ProviderRoutes = router4;
 
 // src/app/modules/user/user.route.ts
+init_esm_shims();
 import express5 from "express";
 
 // src/app/modules/user/user.controller.ts
+init_esm_shims();
 import { StatusCodes as StatusCodes12 } from "http-status-codes";
 
 // src/app/modules/user/user.service.ts
+init_esm_shims();
 var getCurrentUser = async (req) => {
   return req.user;
 };

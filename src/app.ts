@@ -1,6 +1,5 @@
 import { toNodeHandler } from "better-auth/node";
 import cors from "cors";
-import dotenv from "dotenv";
 import express, { Application } from "express";
 import { StatusCodes } from "http-status-codes";
 import globalErrorHandler from "./app/middleware/GlobalErrorHandler";
@@ -10,22 +9,26 @@ import routes from "./app/routes";
 import sendResponse from "./shared/sendResponse";
 import { auth } from "./utils/auth";
 
-dotenv.config();
-
 const app: Application = express();
-
+app.set("trust proxy", 1);
+app.use(express.json({ limit: "16kb" }));
+app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: (origin, callback) => {
+      const allowed = process.env.CORS_ORIGIN?.replace(/\/$/, "");
+      if (!origin || origin.replace(/\/$/, "") === allowed) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );
-app.use(express.json({ limit: "16kb" }));
-app.use(express.urlencoded({ extended: true, limit: "16kb" }));
-
 app.use(logger);
 
-app.all("/api/auth/*splat", toNodeHandler(auth));
+app.all("/api/auth/*any", toNodeHandler(auth));
 app.get("/", (req, res) => {
   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
   sendResponse(res, {
