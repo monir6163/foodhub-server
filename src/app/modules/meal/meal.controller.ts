@@ -77,10 +77,46 @@ const deleteMeal = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// Get Meal Types
+const getMealTypes = catchAsync(async (req: Request, res: Response) => {
+  const result = await MealService.getMealTypes();
+  sendResponse<string[]>(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Meal types retrieved successfully",
+    data: result,
+  });
+});
+
+// get dietary options
+const getDietaryOptions = catchAsync(async (req: Request, res: Response) => {
+  const result = await MealService.getDietaryOptions();
+  sendResponse<string[]>(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Dietary options retrieved successfully",
+    data: result,
+  });
+});
+
+// get Cuisine Options
+const getCuisineOptions = catchAsync(async (req: Request, res: Response) => {
+  const result = await MealService.getCuisineOptions();
+  sendResponse<string[]>(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Cuisine options retrieved successfully",
+    data: result,
+  });
+});
+
 export const MealController = {
   createMeal,
   getAllMeals,
   getMealsById,
   updateMeal,
   deleteMeal,
+  getMealTypes,
+  getDietaryOptions,
+  getCuisineOptions,
 };

@@ -11,6 +11,13 @@ router.get("/", MealController.getAllMeals);
 
 router.get("/:id", MealController.getMealsById);
 
+// get meal types
+router.get("/types/list", MealController.getMealTypes);
+// get dietary options
+router.get("/dietary-options/list", MealController.getDietaryOptions);
+// get cuisine options
+router.get("/cuisine-options/list", MealController.getCuisineOptions);
+
 router.post(
   "/",
   authMiddleware(UserRole.provider),

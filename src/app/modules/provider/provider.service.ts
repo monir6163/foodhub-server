@@ -78,6 +78,13 @@ const getAllProviders = async () => {
           name: true,
           price: true,
           isAvailable: true,
+          reviews: true,
+          category: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
       },
     },
@@ -109,6 +116,7 @@ const getProviderById = async (providerId: string) => {
           name: true,
           price: true,
           isAvailable: true,
+          reviews: true,
           category: {
             select: {
               id: true,

@@ -64,7 +64,6 @@ const createMeal = async (payload: IMeal & { userId?: string }) => {
 const getAllMeals = async (
   payload: MealFilterPayload,
 ): Promise<MealListResponse> => {
-  console.log(payload);
   const meals = await prisma.meal.findMany({
     take: Number(payload.limit),
     skip: Number(payload.skip),
@@ -93,6 +92,17 @@ const getAllMeals = async (
 const getMealsById = async (mealId: string) => {
   const data = await prisma.meal.findUnique({
     where: { id: mealId },
+    include: {
+      reviews: true,
+      category: true,
+      provider: {
+        select: {
+          id: true,
+          shopName: true,
+          address: true,
+        },
+      },
+    },
   });
   if (!data) {
     throw new ApiError(StatusCodes.NOT_FOUND, "Meal not found");
@@ -162,10 +172,57 @@ const deleteMeal = async (mealId: string, userId: string) => {
   return deletedMeal as IMeal;
 };
 
+// Get Meal Types
+const getMealTypes = async (): Promise<string[]> => {
+  const mealTypes = await prisma.meal.findMany({
+    distinct: ["mealType"],
+    select: {
+      mealType: true,
+    },
+  });
+
+  return mealTypes
+    .map((meal) => meal.mealType)
+    .filter((type): type is string => type !== null);
+};
+
+// Get Dietary Options
+const getDietaryOptions = async (): Promise<string[]> => {
+  const dietaryOptions = await prisma.meal.findMany({
+    distinct: ["dietary"],
+    select: {
+      dietary: true,
+    },
+  });
+
+  const dietarySet = new Set<string>();
+  dietaryOptions.forEach((meal) => {
+    meal.dietary.forEach((option) => dietarySet.add(option));
+  });
+
+  return Array.from(dietarySet);
+};
+
+// Get Cuisine Options
+const getCuisineOptions = async (): Promise<string[]> => {
+  const cuisines = await prisma.meal.findMany({
+    distinct: ["cuisine"],
+    select: {
+      cuisine: true,
+    },
+  });
+  return cuisines
+    .map((meal) => meal.cuisine)
+    .filter((cuisine): cuisine is string => cuisine !== null);
+};
+
 export const MealService = {
   createMeal,
   getAllMeals,
   getMealsById,
   updateMeal,
   deleteMeal,
+  getMealTypes,
+  getDietaryOptions,
+  getCuisineOptions,
 };

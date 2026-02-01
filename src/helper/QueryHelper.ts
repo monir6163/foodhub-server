@@ -6,6 +6,26 @@ export const buildMealQueryCondition = (
 ): MealWhereInput => {
   const andConditions: MealWhereInput[] = [];
 
+  // search by name or description
+  if (payload.search) {
+    andConditions.push({
+      OR: [
+        {
+          name: {
+            contains: payload.search,
+            mode: "insensitive",
+          },
+        },
+        {
+          description: {
+            contains: payload.search,
+            mode: "insensitive",
+          },
+        },
+      ],
+    });
+  }
+
   // filter by cuisine
   if (payload.cuisine) {
     andConditions.push({

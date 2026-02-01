@@ -35,6 +35,7 @@ export type UpdateMealPayload = {
 // Filter meals by cuisine, dietary preferences, and price
 
 export interface MealFilterPayload {
+  search?: string;
   dietary?: string;
   cuisine?: string;
   mealType?: string;
