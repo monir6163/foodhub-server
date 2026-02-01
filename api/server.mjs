@@ -78,7 +78,6 @@ init_esm_shims();
 init_esm_shims();
 import { toNodeHandler } from "better-auth/node";
 import cors from "cors";
-import dotenv from "dotenv";
 import express7 from "express";
 import { StatusCodes as StatusCodes13 } from "http-status-codes";
 
@@ -644,7 +643,8 @@ var auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql"
   }),
-  trustedOrigins: [process.env.CORS_ORIGIN],
+  baseURL: process.env.BETTER_AUTH_URL,
+  trustedOrigins: [process.env.FRONTEND_URL],
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
@@ -1756,18 +1756,25 @@ moduleRoutes.forEach((route) => router6.use(route.path, route.routes));
 var routes_default = router6;
 
 // src/app.ts
-dotenv.config();
 var app = express7();
+app.set("trust proxy", 1);
+app.use(express7.json({ limit: "16kb" }));
+app.use(express7.urlencoded({ extended: true, limit: "16kb" }));
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: (origin, callback) => {
+      const allowed = process.env.FRONTEND_URL?.replace(/\/$/, "");
+      if (!origin || origin.replace(/\/$/, "") === allowed) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true
   })
 );
-app.use(express7.json({ limit: "16kb" }));
-app.use(express7.urlencoded({ extended: true, limit: "16kb" }));
 app.use(Logger_default);
-app.all("/api/auth/*splat", toNodeHandler(auth));
+app.all("/api/auth/*any", toNodeHandler(auth));
 app.get("/", (req, res) => {
   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
   sendResponse_default(res, {

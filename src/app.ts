@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(
   cors({
     origin: (origin, callback) => {
-      const allowed = process.env.CORS_ORIGIN?.replace(/\/$/, "");
+      const allowed = process.env.FRONTEND_URL?.replace(/\/$/, "");
       if (!origin || origin.replace(/\/$/, "") === allowed) {
         callback(null, true);
       } else {

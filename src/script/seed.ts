@@ -23,7 +23,7 @@ const AdminCreateInitialData = async () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Origin: process.env.CORS_ORIGIN as string,
+          Origin: process.env.FRONTEND_URL as string,
         },
         body: JSON.stringify(adminData),
       },
