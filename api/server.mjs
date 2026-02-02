@@ -78,8 +78,8 @@ init_esm_shims();
 init_esm_shims();
 import { toNodeHandler } from "better-auth/node";
 import cors from "cors";
-import express7 from "express";
-import { StatusCodes as StatusCodes13 } from "http-status-codes";
+import express8 from "express";
+import { StatusCodes as StatusCodes15 } from "http-status-codes";
 
 // src/app/middleware/GlobalErrorHandler.ts
 init_esm_shims();
@@ -161,7 +161,7 @@ var NotFound_default = notFound;
 
 // src/app/routes/index.ts
 init_esm_shims();
-import express6 from "express";
+import express7 from "express";
 
 // src/app/modules/category/category.route.ts
 init_esm_shims();
@@ -317,6 +317,7 @@ var MealScalarFieldEnum = {
 };
 var OrderScalarFieldEnum = {
   id: "id",
+  orderNumber: "orderNumber",
   userId: "userId",
   providerId: "providerId",
   totalAmount: "totalAmount",
@@ -375,6 +376,25 @@ init_esm_shims();
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 
+// src/utils/mailService.ts
+init_esm_shims();
+import dotenv from "dotenv";
+import nodemailer from "nodemailer";
+import path2 from "path";
+dotenv.config({ path: path2.join(process.cwd(), ".env") });
+var transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST,
+  port: Number(process.env.EMAIL_PORT),
+  secure: false,
+  tls: {
+    rejectUnauthorized: false
+  },
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
+
 // src/utils/prisma.ts
 init_esm_shims();
 import { PrismaPg } from "@prisma/adapter-pg";
@@ -388,7 +408,7 @@ __export(client_exports, {
   PrismaClient: () => PrismaClient
 });
 init_esm_shims();
-import * as path2 from "path";
+import * as path3 from "path";
 import { fileURLToPath as fileURLToPath2 } from "url";
 
 // generated/prisma/internal/class.ts
@@ -399,14 +419,14 @@ var config = {
   "clientVersion": "7.3.0",
   "engineVersion": "9d6ad21cbbceab97458517b147a6a09ff43aa735",
   "activeProvider": "postgresql",
-  "inlineSchema": 'model User {\n  id            String     @id\n  name          String\n  email         String\n  emailVerified Boolean    @default(false)\n  image         String?\n  role          UserRole   @default(customer)\n  status        UserStatus @default(active)\n  phone         String?\n  createdAt     DateTime   @default(now())\n  updatedAt     DateTime   @updatedAt\n  sessions      Session[]\n  accounts      Account[]\n\n  providerProfile ProviderProfile?\n  orders          Order[]\n  reviews         Review[]\n\n  @@unique([email])\n  @@map("user")\n}\n\nmodel Session {\n  id        String   @id\n  expiresAt DateTime\n  token     String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  ipAddress String?\n  userAgent String?\n  userId    String\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([token])\n  @@index([userId])\n  @@map("session")\n}\n\nmodel Account {\n  id                    String    @id\n  accountId             String\n  providerId            String\n  userId                String\n  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  accessToken           String?\n  refreshToken          String?\n  idToken               String?\n  accessTokenExpiresAt  DateTime?\n  refreshTokenExpiresAt DateTime?\n  scope                 String?\n  password              String?\n  createdAt             DateTime  @default(now())\n  updatedAt             DateTime  @updatedAt\n\n  @@index([userId])\n  @@map("account")\n}\n\nmodel Verification {\n  id         String   @id\n  identifier String\n  value      String\n  expiresAt  DateTime\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n\n  @@index([identifier])\n  @@map("verification")\n}\n\nenum UserRole {\n  admin\n  customer\n  provider\n}\n\nenum UserStatus {\n  active\n  inactive\n}\n\nmodel Category {\n  id   String @id @default(uuid())\n  name String @unique\n  slug String @unique\n\n  meals Meal[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Meal {\n  id          String          @id @default(uuid())\n  providerId  String\n  categoryId  String\n  name        String\n  description String?\n  price       Float\n  image       String?\n  isAvailable Boolean         @default(true)\n  calories    Int\n  ingredients String[]        @default([])\n  cuisine     String?\n  dietary     String[]        @default([])\n  mealType    String?\n  spiceLevel  String?\n  provider    ProviderProfile @relation(fields: [providerId], references: [id])\n  category    Category        @relation(fields: [categoryId], references: [id])\n  reviews     Review[]\n  orderItems  OrderItem[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Order {\n  id          String      @id @default(uuid())\n  userId      String\n  providerId  String\n  totalAmount Float\n  status      OrderStatus\n  address     String\n  paymentType PaymentType @default(COD)\n\n  user     User            @relation(fields: [userId], references: [id])\n  provider ProviderProfile @relation(fields: [providerId], references: [id])\n  items    OrderItem[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nenum OrderStatus {\n  PENDING\n  ACCEPTED\n  COOKING\n  ON_THE_WAY\n  DELIVERED\n  CANCELLED\n}\n\nenum PaymentType {\n  COD\n}\n\nmodel OrderItem {\n  id       String @id @default(uuid())\n  orderId  String\n  mealId   String\n  price    Float\n  quantity Int\n\n  order Order @relation(fields: [orderId], references: [id])\n  meal  Meal  @relation(fields: [mealId], references: [id])\n}\n\nmodel ProviderProfile {\n  id          String  @id @default(uuid())\n  userId      String  @unique\n  shopName    String\n  description String?\n  address     String\n  phone       String\n  isOpen      Boolean @default(true)\n\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n  meals     Meal[]\n  orders    Order[]\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Review {\n  id      String  @id @default(uuid())\n  userId  String\n  mealId  String\n  rating  Int\n  comment String?\n\n  user User @relation(fields: [userId], references: [id])\n  meal Meal @relation(fields: [mealId], references: [id])\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\ngenerator client {\n  provider = "prisma-client"\n  output   = "../../generated/prisma"\n}\n\ndatasource db {\n  provider = "postgresql"\n}\n',
+  "inlineSchema": 'model User {\n  id            String     @id\n  name          String\n  email         String\n  emailVerified Boolean    @default(false)\n  image         String?\n  role          UserRole   @default(customer)\n  status        UserStatus @default(active)\n  phone         String?\n  createdAt     DateTime   @default(now())\n  updatedAt     DateTime   @updatedAt\n  sessions      Session[]\n  accounts      Account[]\n\n  providerProfile ProviderProfile?\n  orders          Order[]\n  reviews         Review[]\n\n  @@unique([email])\n  @@map("user")\n}\n\nmodel Session {\n  id        String   @id\n  expiresAt DateTime\n  token     String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  ipAddress String?\n  userAgent String?\n  userId    String\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([token])\n  @@index([userId])\n  @@map("session")\n}\n\nmodel Account {\n  id                    String    @id\n  accountId             String\n  providerId            String\n  userId                String\n  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  accessToken           String?\n  refreshToken          String?\n  idToken               String?\n  accessTokenExpiresAt  DateTime?\n  refreshTokenExpiresAt DateTime?\n  scope                 String?\n  password              String?\n  createdAt             DateTime  @default(now())\n  updatedAt             DateTime  @updatedAt\n\n  @@index([userId])\n  @@map("account")\n}\n\nmodel Verification {\n  id         String   @id\n  identifier String\n  value      String\n  expiresAt  DateTime\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n\n  @@index([identifier])\n  @@map("verification")\n}\n\nenum UserRole {\n  admin\n  customer\n  provider\n}\n\nenum UserStatus {\n  active\n  inactive\n}\n\nmodel Category {\n  id   String @id @default(uuid())\n  name String @unique\n  slug String @unique\n\n  meals Meal[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Meal {\n  id          String          @id @default(uuid())\n  providerId  String\n  categoryId  String\n  name        String\n  description String?\n  price       Float\n  image       String?\n  isAvailable Boolean         @default(true)\n  calories    Int\n  ingredients String[]        @default([])\n  cuisine     String?\n  dietary     String[]        @default([])\n  mealType    String?\n  spiceLevel  String?\n  provider    ProviderProfile @relation(fields: [providerId], references: [id])\n  category    Category        @relation(fields: [categoryId], references: [id])\n  reviews     Review[]\n  orderItems  OrderItem[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Order {\n  id          String      @id @default(uuid())\n  orderNumber String?     @unique\n  userId      String\n  providerId  String\n  totalAmount Float\n  status      OrderStatus\n  address     String\n  paymentType PaymentType @default(COD)\n\n  user     User            @relation(fields: [userId], references: [id])\n  provider ProviderProfile @relation(fields: [providerId], references: [id])\n  items    OrderItem[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nenum OrderStatus {\n  PENDING\n  ACCEPTED\n  COOKING\n  ON_THE_WAY\n  DELIVERED\n  CANCELLED\n}\n\nenum PaymentType {\n  COD\n}\n\nmodel OrderItem {\n  id       String @id @default(uuid())\n  orderId  String\n  mealId   String\n  price    Float\n  quantity Int\n\n  order Order @relation(fields: [orderId], references: [id])\n  meal  Meal  @relation(fields: [mealId], references: [id])\n}\n\nmodel ProviderProfile {\n  id          String  @id @default(uuid())\n  userId      String  @unique\n  shopName    String\n  description String?\n  address     String\n  phone       String\n  isOpen      Boolean @default(true)\n\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n  meals     Meal[]\n  orders    Order[]\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Review {\n  id      String  @id @default(uuid())\n  userId  String\n  mealId  String\n  rating  Int\n  comment String?\n\n  user User @relation(fields: [userId], references: [id])\n  meal Meal @relation(fields: [mealId], references: [id])\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@unique([userId, mealId], name: "unique_user_meal_review")\n}\n\ngenerator client {\n  provider = "prisma-client"\n  output   = "../../generated/prisma"\n}\n\ndatasource db {\n  provider = "postgresql"\n}\n',
   "runtimeDataModel": {
     "models": {},
     "enums": {},
     "types": {}
   }
 };
-config.runtimeDataModel = JSON.parse('{"models":{"User":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"email","kind":"scalar","type":"String"},{"name":"emailVerified","kind":"scalar","type":"Boolean"},{"name":"image","kind":"scalar","type":"String"},{"name":"role","kind":"enum","type":"UserRole"},{"name":"status","kind":"enum","type":"UserStatus"},{"name":"phone","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"sessions","kind":"object","type":"Session","relationName":"SessionToUser"},{"name":"accounts","kind":"object","type":"Account","relationName":"AccountToUser"},{"name":"providerProfile","kind":"object","type":"ProviderProfile","relationName":"ProviderProfileToUser"},{"name":"orders","kind":"object","type":"Order","relationName":"OrderToUser"},{"name":"reviews","kind":"object","type":"Review","relationName":"ReviewToUser"}],"dbName":"user"},"Session":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"expiresAt","kind":"scalar","type":"DateTime"},{"name":"token","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"ipAddress","kind":"scalar","type":"String"},{"name":"userAgent","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"SessionToUser"}],"dbName":"session"},"Account":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"accountId","kind":"scalar","type":"String"},{"name":"providerId","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"AccountToUser"},{"name":"accessToken","kind":"scalar","type":"String"},{"name":"refreshToken","kind":"scalar","type":"String"},{"name":"idToken","kind":"scalar","type":"String"},{"name":"accessTokenExpiresAt","kind":"scalar","type":"DateTime"},{"name":"refreshTokenExpiresAt","kind":"scalar","type":"DateTime"},{"name":"scope","kind":"scalar","type":"String"},{"name":"password","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"account"},"Verification":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"identifier","kind":"scalar","type":"String"},{"name":"value","kind":"scalar","type":"String"},{"name":"expiresAt","kind":"scalar","type":"DateTime"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"verification"},"Category":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"slug","kind":"scalar","type":"String"},{"name":"meals","kind":"object","type":"Meal","relationName":"CategoryToMeal"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":null},"Meal":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"providerId","kind":"scalar","type":"String"},{"name":"categoryId","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"description","kind":"scalar","type":"String"},{"name":"price","kind":"scalar","type":"Float"},{"name":"image","kind":"scalar","type":"String"},{"name":"isAvailable","kind":"scalar","type":"Boolean"},{"name":"calories","kind":"scalar","type":"Int"},{"name":"ingredients","kind":"scalar","type":"String"},{"name":"cuisine","kind":"scalar","type":"String"},{"name":"dietary","kind":"scalar","type":"String"},{"name":"mealType","kind":"scalar","type":"String"},{"name":"spiceLevel","kind":"scalar","type":"String"},{"name":"provider","kind":"object","type":"ProviderProfile","relationName":"MealToProviderProfile"},{"name":"category","kind":"object","type":"Category","relationName":"CategoryToMeal"},{"name":"reviews","kind":"object","type":"Review","relationName":"MealToReview"},{"name":"orderItems","kind":"object","type":"OrderItem","relationName":"MealToOrderItem"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":null},"Order":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"providerId","kind":"scalar","type":"String"},{"name":"totalAmount","kind":"scalar","type":"Float"},{"name":"status","kind":"enum","type":"OrderStatus"},{"name":"address","kind":"scalar","type":"String"},{"name":"paymentType","kind":"enum","type":"PaymentType"},{"name":"user","kind":"object","type":"User","relationName":"OrderToUser"},{"name":"provider","kind":"object","type":"ProviderProfile","relationName":"OrderToProviderProfile"},{"name":"items","kind":"object","type":"OrderItem","relationName":"OrderToOrderItem"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":null},"OrderItem":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"orderId","kind":"scalar","type":"String"},{"name":"mealId","kind":"scalar","type":"String"},{"name":"price","kind":"scalar","type":"Float"},{"name":"quantity","kind":"scalar","type":"Int"},{"name":"order","kind":"object","type":"Order","relationName":"OrderToOrderItem"},{"name":"meal","kind":"object","type":"Meal","relationName":"MealToOrderItem"}],"dbName":null},"ProviderProfile":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"shopName","kind":"scalar","type":"String"},{"name":"description","kind":"scalar","type":"String"},{"name":"address","kind":"scalar","type":"String"},{"name":"phone","kind":"scalar","type":"String"},{"name":"isOpen","kind":"scalar","type":"Boolean"},{"name":"user","kind":"object","type":"User","relationName":"ProviderProfileToUser"},{"name":"meals","kind":"object","type":"Meal","relationName":"MealToProviderProfile"},{"name":"orders","kind":"object","type":"Order","relationName":"OrderToProviderProfile"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":null},"Review":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"mealId","kind":"scalar","type":"String"},{"name":"rating","kind":"scalar","type":"Int"},{"name":"comment","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"ReviewToUser"},{"name":"meal","kind":"object","type":"Meal","relationName":"MealToReview"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":null}},"enums":{},"types":{}}');
+config.runtimeDataModel = JSON.parse('{"models":{"User":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"email","kind":"scalar","type":"String"},{"name":"emailVerified","kind":"scalar","type":"Boolean"},{"name":"image","kind":"scalar","type":"String"},{"name":"role","kind":"enum","type":"UserRole"},{"name":"status","kind":"enum","type":"UserStatus"},{"name":"phone","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"sessions","kind":"object","type":"Session","relationName":"SessionToUser"},{"name":"accounts","kind":"object","type":"Account","relationName":"AccountToUser"},{"name":"providerProfile","kind":"object","type":"ProviderProfile","relationName":"ProviderProfileToUser"},{"name":"orders","kind":"object","type":"Order","relationName":"OrderToUser"},{"name":"reviews","kind":"object","type":"Review","relationName":"ReviewToUser"}],"dbName":"user"},"Session":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"expiresAt","kind":"scalar","type":"DateTime"},{"name":"token","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"},{"name":"ipAddress","kind":"scalar","type":"String"},{"name":"userAgent","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"SessionToUser"}],"dbName":"session"},"Account":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"accountId","kind":"scalar","type":"String"},{"name":"providerId","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"AccountToUser"},{"name":"accessToken","kind":"scalar","type":"String"},{"name":"refreshToken","kind":"scalar","type":"String"},{"name":"idToken","kind":"scalar","type":"String"},{"name":"accessTokenExpiresAt","kind":"scalar","type":"DateTime"},{"name":"refreshTokenExpiresAt","kind":"scalar","type":"DateTime"},{"name":"scope","kind":"scalar","type":"String"},{"name":"password","kind":"scalar","type":"String"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"account"},"Verification":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"identifier","kind":"scalar","type":"String"},{"name":"value","kind":"scalar","type":"String"},{"name":"expiresAt","kind":"scalar","type":"DateTime"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":"verification"},"Category":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"slug","kind":"scalar","type":"String"},{"name":"meals","kind":"object","type":"Meal","relationName":"CategoryToMeal"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":null},"Meal":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"providerId","kind":"scalar","type":"String"},{"name":"categoryId","kind":"scalar","type":"String"},{"name":"name","kind":"scalar","type":"String"},{"name":"description","kind":"scalar","type":"String"},{"name":"price","kind":"scalar","type":"Float"},{"name":"image","kind":"scalar","type":"String"},{"name":"isAvailable","kind":"scalar","type":"Boolean"},{"name":"calories","kind":"scalar","type":"Int"},{"name":"ingredients","kind":"scalar","type":"String"},{"name":"cuisine","kind":"scalar","type":"String"},{"name":"dietary","kind":"scalar","type":"String"},{"name":"mealType","kind":"scalar","type":"String"},{"name":"spiceLevel","kind":"scalar","type":"String"},{"name":"provider","kind":"object","type":"ProviderProfile","relationName":"MealToProviderProfile"},{"name":"category","kind":"object","type":"Category","relationName":"CategoryToMeal"},{"name":"reviews","kind":"object","type":"Review","relationName":"MealToReview"},{"name":"orderItems","kind":"object","type":"OrderItem","relationName":"MealToOrderItem"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":null},"Order":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"orderNumber","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"providerId","kind":"scalar","type":"String"},{"name":"totalAmount","kind":"scalar","type":"Float"},{"name":"status","kind":"enum","type":"OrderStatus"},{"name":"address","kind":"scalar","type":"String"},{"name":"paymentType","kind":"enum","type":"PaymentType"},{"name":"user","kind":"object","type":"User","relationName":"OrderToUser"},{"name":"provider","kind":"object","type":"ProviderProfile","relationName":"OrderToProviderProfile"},{"name":"items","kind":"object","type":"OrderItem","relationName":"OrderToOrderItem"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":null},"OrderItem":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"orderId","kind":"scalar","type":"String"},{"name":"mealId","kind":"scalar","type":"String"},{"name":"price","kind":"scalar","type":"Float"},{"name":"quantity","kind":"scalar","type":"Int"},{"name":"order","kind":"object","type":"Order","relationName":"OrderToOrderItem"},{"name":"meal","kind":"object","type":"Meal","relationName":"MealToOrderItem"}],"dbName":null},"ProviderProfile":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"shopName","kind":"scalar","type":"String"},{"name":"description","kind":"scalar","type":"String"},{"name":"address","kind":"scalar","type":"String"},{"name":"phone","kind":"scalar","type":"String"},{"name":"isOpen","kind":"scalar","type":"Boolean"},{"name":"user","kind":"object","type":"User","relationName":"ProviderProfileToUser"},{"name":"meals","kind":"object","type":"Meal","relationName":"MealToProviderProfile"},{"name":"orders","kind":"object","type":"Order","relationName":"OrderToProviderProfile"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":null},"Review":{"fields":[{"name":"id","kind":"scalar","type":"String"},{"name":"userId","kind":"scalar","type":"String"},{"name":"mealId","kind":"scalar","type":"String"},{"name":"rating","kind":"scalar","type":"Int"},{"name":"comment","kind":"scalar","type":"String"},{"name":"user","kind":"object","type":"User","relationName":"ReviewToUser"},{"name":"meal","kind":"object","type":"Meal","relationName":"MealToReview"},{"name":"createdAt","kind":"scalar","type":"DateTime"},{"name":"updatedAt","kind":"scalar","type":"DateTime"}],"dbName":null}},"enums":{},"types":{}}');
 async function decodeBase64AsWasm(wasmBase64) {
   const { Buffer: Buffer2 } = await import("buffer");
   const wasmArray = Buffer2.from(wasmBase64, "base64");
@@ -577,6 +597,7 @@ var MealScalarFieldEnum2 = {
 };
 var OrderScalarFieldEnum2 = {
   id: "id",
+  orderNumber: "orderNumber",
   userId: "userId",
   providerId: "providerId",
   totalAmount: "totalAmount",
@@ -630,7 +651,7 @@ var defineExtension = runtime3.Extensions.defineExtension;
 // generated/prisma/client.ts
 var $Enums2 = __toESM(require_enums());
 __reExport(client_exports, __toESM(require_enums()));
-globalThis["__dirname"] = path2.dirname(fileURLToPath2(import.meta.url));
+globalThis["__dirname"] = path3.dirname(fileURLToPath2(import.meta.url));
 var PrismaClient = getPrismaClientClass();
 
 // src/utils/prisma.ts
@@ -648,7 +669,141 @@ var auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
-    requireEmailVerification: false
+    requireEmailVerification: true
+  },
+  // email verification
+  emailVerification: {
+    sendOnSignUp: true,
+    sendVerificationEmail: async ({ user, url, token }, request) => {
+      try {
+        const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
+        const info = await transporter.sendMail({
+          from: `"Food Hub" <${process.env.EMAIL_USER}>`,
+          to: user.email,
+          subject: "Please verify your email for Food Hub",
+          html: `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Email Verification</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #f4f6f8;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+      }
+      .container {
+        width: 100%;
+        padding: 30px 0;
+      }
+      .card {
+        max-width: 600px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+      }
+      .header {
+        background: #0f172a;
+        color: #ffffff;
+        padding: 20px 30px;
+        font-size: 20px;
+        font-weight: 600;
+      }
+      .content {
+        padding: 30px;
+        color: #334155;
+        font-size: 15px;
+        line-height: 1.6;
+      }
+      .btn-wrapper {
+        text-align: center;
+        margin: 30px 0;
+      }
+      .btn {
+        background-color: #2563eb;
+        color: #ffffff !important;
+        text-decoration: none;
+        padding: 12px 28px;
+        border-radius: 6px;
+        font-size: 15px;
+        font-weight: 600;
+        display: inline-block;
+      }
+      .btn:hover {
+        background-color: #1d4ed8;
+      }
+      .footer {
+        padding: 20px 30px;
+        background: #f8fafc;
+        font-size: 12px;
+        color: #64748b;
+        text-align: center;
+      }
+      .link {
+        word-break: break-all;
+        color: #2563eb;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <div class="header">Verify your email</div>
+
+        <div class="content">
+          <p>Hi <strong>${user.name}</strong>,</p>
+
+          <p>
+            Thanks for signing up! Please confirm your email address by clicking
+            the button below. This helps us make sure your account is secure.
+          </p>
+
+          <div class="btn-wrapper">
+            <a href="${verificationUrl}" class="btn">
+              Verify Email Address
+            </a>
+          </div>
+
+          <p>
+            If the button doesn\u2019t work, copy and paste the following link into
+            your browser:
+          </p>
+
+          <p class="link">${verificationUrl}</p>
+
+          <p>
+            This verification link will expire soon. If you didn\u2019t create an
+            account, you can safely ignore this email.
+          </p>
+
+          <p>
+            Regards,<br />
+            <strong>NexaLogic Tech Team</strong>
+          </p>
+        </div>
+
+        <div class="footer">
+          \xA9 ${(/* @__PURE__ */ new Date()).getFullYear().toString()} NexaLogic Tech. All rights reserved.<br />
+          You\u2019re receiving this email because you created an account.
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+`
+        });
+        console.log(`${info.messageId}`);
+      } catch (error) {
+        console.log("email send faield", error);
+        throw error;
+      }
+    }
   },
   // extend with additional models or fields as needed
   user: {
@@ -699,6 +854,12 @@ var authMiddleware = (...roles) => {
         throw new ApiError_default(
           StatusCodes3.UNAUTHORIZED,
           "Unauthorized! Please log in to access this resource."
+        );
+      }
+      if (session.user.emailVerified === false) {
+        throw new ApiError_default(
+          StatusCodes3.FORBIDDEN,
+          "Please verify your email to access this resource."
         );
       }
       if (session.user.status === browser_exports.UserStatus.inactive) {
@@ -805,13 +966,68 @@ var createCategory = async (payload) => {
 };
 var getAllCategories = async () => {
   const categories = await prisma.category.findMany({
-    orderBy: { createdAt: "desc" }
+    include: {
+      _count: {
+        select: { meals: true }
+      }
+    },
+    orderBy: {
+      createdAt: "desc"
+    }
   });
   return categories;
 };
+var updateCategory = async (id, payload) => {
+  const { name } = payload;
+  const category = await prisma.category.findUnique({
+    where: { id }
+  });
+  if (!category) {
+    throw new ApiError_default(StatusCodes4.NOT_FOUND, "Category not found");
+  }
+  const data = await prisma.category.update({
+    where: { id },
+    data: {
+      name,
+      slug: slugify(name, {
+        replacement: "-",
+        lower: true,
+        trim: true,
+        remove: /[*+~.()'"!:@]/g,
+        strict: true
+      })
+    }
+  });
+  return data;
+};
+var deleteCategory = async (id) => {
+  const category = await prisma.category.findUnique({
+    where: { id },
+    include: {
+      _count: {
+        select: { meals: true }
+      }
+    }
+  });
+  if (!category) {
+    throw new ApiError_default(StatusCodes4.NOT_FOUND, "Category not found");
+  }
+  if (category._count.meals > 0) {
+    throw new ApiError_default(
+      StatusCodes4.BAD_REQUEST,
+      "Cannot delete category with associated meals"
+    );
+  }
+  await prisma.category.delete({
+    where: { id }
+  });
+  return { message: "Category deleted successfully" };
+};
 var CategoryService = {
   createCategory,
-  getAllCategories
+  getAllCategories,
+  updateCategory,
+  deleteCategory
 };
 
 // src/app/modules/category/category.controller.ts
@@ -833,9 +1049,31 @@ var getAllCategories2 = catchAsync_default(async (req, res) => {
     data: result
   });
 });
+var updateCategory2 = catchAsync_default(async (req, res) => {
+  const { id } = req.params;
+  const result = await CategoryService.updateCategory(id, req.body);
+  sendResponse_default(res, {
+    statusCode: StatusCodes5.OK,
+    success: true,
+    message: "Category updated successfully",
+    data: result
+  });
+});
+var deleteCategory2 = catchAsync_default(async (req, res) => {
+  const { id } = req.params;
+  const result = await CategoryService.deleteCategory(id);
+  sendResponse_default(res, {
+    statusCode: StatusCodes5.OK,
+    success: true,
+    message: result.message,
+    data: null
+  });
+});
 var CategoryController = {
   createCategory: createCategory2,
-  getAllCategories: getAllCategories2
+  getAllCategories: getAllCategories2,
+  updateCategory: updateCategory2,
+  deleteCategory: deleteCategory2
 };
 
 // src/app/modules/category/category.validation.ts
@@ -853,11 +1091,22 @@ var CategoryValidation = {
 var router = express.Router();
 router.post(
   "/",
-  Auth_default(UserRole.admin, UserRole.provider),
+  Auth_default(UserRole.admin),
   ValidateRequest_default(CategoryValidation.categoryZodSchema),
   CategoryController.createCategory
 );
 router.get("/", CategoryController.getAllCategories);
+router.patch(
+  "/:id",
+  Auth_default(UserRole.admin),
+  ValidateRequest_default(CategoryValidation.categoryZodSchema),
+  CategoryController.updateCategory
+);
+router.delete(
+  "/:id",
+  Auth_default(UserRole.admin),
+  CategoryController.deleteCategory
+);
 var CategoryRoutes = router;
 
 // src/app/modules/meal/meal.route.ts
@@ -896,6 +1145,24 @@ import { StatusCodes as StatusCodes6 } from "http-status-codes";
 init_esm_shims();
 var buildMealQueryCondition = (payload) => {
   const andConditions = [];
+  if (payload.search) {
+    andConditions.push({
+      OR: [
+        {
+          name: {
+            contains: payload.search,
+            mode: "insensitive"
+          }
+        },
+        {
+          description: {
+            contains: payload.search,
+            mode: "insensitive"
+          }
+        }
+      ]
+    });
+  }
   if (payload.cuisine) {
     andConditions.push({
       cuisine: {
@@ -952,6 +1219,7 @@ var createMeal = async (payload) => {
     const providerFind = await tx.providerProfile.findUnique({
       where: { userId }
     });
+    console.log(providerFind);
     if (!providerFind) {
       throw new ApiError_default(
         StatusCodes6.NOT_FOUND,
@@ -961,10 +1229,10 @@ var createMeal = async (payload) => {
     const data = await tx.meal.create({
       data: {
         name,
-        calories,
+        calories: Number(calories),
         ingredients,
         description: description ?? null,
-        price,
+        price: Number(price),
         image: image ?? null,
         isAvailable,
         categoryId,
@@ -980,7 +1248,6 @@ var createMeal = async (payload) => {
   return result;
 };
 var getAllMeals = async (payload) => {
-  console.log(payload);
   const meals = await prisma.meal.findMany({
     take: Number(payload.limit),
     skip: Number(payload.skip),
@@ -1007,12 +1274,48 @@ var getAllMeals = async (payload) => {
 };
 var getMealsById = async (mealId) => {
   const data = await prisma.meal.findUnique({
-    where: { id: mealId }
+    where: { id: mealId },
+    include: {
+      reviews: true,
+      category: true,
+      provider: {
+        select: {
+          id: true,
+          shopName: true,
+          address: true
+        }
+      }
+    }
   });
   if (!data) {
     throw new ApiError_default(StatusCodes6.NOT_FOUND, "Meal not found");
   }
   return data;
+};
+var getProviderMeals = async (userId) => {
+  const providerProfile = await prisma.providerProfile.findUnique({
+    where: { userId }
+  });
+  if (!providerProfile) {
+    throw new ApiError_default(StatusCodes6.FORBIDDEN, "Provider profile not found");
+  }
+  const meals = await prisma.meal.findMany({
+    where: { providerId: providerProfile.id },
+    include: {
+      category: true,
+      reviews: true,
+      provider: true
+    },
+    orderBy: {
+      createdAt: "desc"
+    }
+  });
+  return {
+    data: meals,
+    pagination: {
+      total: meals.length
+    }
+  };
 };
 var updateMeal = async (mealId, userId, payload) => {
   const providerProfile = await prisma.providerProfile.findUnique({
@@ -1055,22 +1358,172 @@ var deleteMeal = async (mealId, userId) => {
   if (!existingMeal) {
     throw new ApiError_default(StatusCodes6.NOT_FOUND, "Meal not found");
   }
+  const runningOrders = await prisma.order.findFirst({
+    where: {
+      status: {
+        in: ["PENDING", "ACCEPTED", "COOKING", "ON_THE_WAY"]
+      },
+      items: {
+        some: {
+          mealId
+        }
+      }
+    }
+  });
+  if (runningOrders) {
+    throw new ApiError_default(
+      StatusCodes6.BAD_REQUEST,
+      "Cannot delete meal with running orders"
+    );
+  }
   const deletedMeal = await prisma.meal.delete({
     where: { id: mealId }
   });
   return deletedMeal;
+};
+var getProviderOrders = async (userId) => {
+  const providerProfile = await prisma.providerProfile.findUnique({
+    where: { userId }
+  });
+  if (!providerProfile) {
+    throw new ApiError_default(StatusCodes6.FORBIDDEN, "Provider profile not found");
+  }
+  const orders = await prisma.order.findMany({
+    where: { providerId: providerProfile.id },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true
+        }
+      },
+      items: {
+        include: {
+          meal: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              image: true
+            }
+          }
+        }
+      }
+    },
+    orderBy: {
+      createdAt: "desc"
+    }
+  });
+  return {
+    data: orders,
+    pagination: {
+      total: orders.length
+    }
+  };
+};
+var getPopularMeals = async () => {
+  const meals = await prisma.meal.findMany({
+    orderBy: {
+      reviews: {
+        _count: "desc"
+      }
+    },
+    take: 8,
+    include: {
+      reviews: true,
+      category: true,
+      provider: {
+        select: {
+          id: true,
+          shopName: true,
+          address: true
+        }
+      }
+    }
+  });
+  return {
+    data: meals,
+    pagination: {
+      total: meals.length
+    }
+  };
+};
+var getMealTypes = async () => {
+  const mealTypes = await prisma.meal.findMany({
+    distinct: ["mealType"],
+    select: {
+      mealType: true
+    }
+  });
+  return mealTypes.map((meal) => meal.mealType).filter((type) => type !== null);
+};
+var getDietaryOptions = async () => {
+  const dietaryOptions = await prisma.meal.findMany({
+    distinct: ["dietary"],
+    select: {
+      dietary: true
+    }
+  });
+  const dietarySet = /* @__PURE__ */ new Set();
+  dietaryOptions.forEach((meal) => {
+    meal.dietary.forEach((option) => dietarySet.add(option));
+  });
+  return Array.from(dietarySet);
+};
+var getCuisineOptions = async () => {
+  const cuisines = await prisma.meal.findMany({
+    distinct: ["cuisine"],
+    select: {
+      cuisine: true
+    }
+  });
+  return cuisines.map((meal) => meal.cuisine).filter((cuisine) => cuisine !== null);
+};
+var updateOrderStatus = async (userId, orderId, status) => {
+  const providerProfile = await prisma.providerProfile.findUnique({
+    where: { userId }
+  });
+  if (!providerProfile) {
+    throw new ApiError_default(StatusCodes6.FORBIDDEN, "Provider profile not found");
+  }
+  const existingOrder = await prisma.order.findFirst({
+    where: {
+      id: orderId,
+      providerId: providerProfile.id
+    }
+  });
+  if (!existingOrder) {
+    throw new ApiError_default(StatusCodes6.NOT_FOUND, "Order not found");
+  }
+  const updatedOrder = await prisma.order.update({
+    where: { id: orderId },
+    data: {
+      status,
+      updatedAt: /* @__PURE__ */ new Date()
+    }
+  });
+  return updatedOrder;
 };
 var MealService = {
   createMeal,
   getAllMeals,
   getMealsById,
   updateMeal,
-  deleteMeal
+  deleteMeal,
+  getMealTypes,
+  getDietaryOptions,
+  getCuisineOptions,
+  getProviderMeals,
+  getProviderOrders,
+  updateOrderStatus,
+  getPopularMeals
 };
 
 // src/app/modules/meal/meal.controller.ts
 var createMeal2 = catchAsync_default(async (req, res) => {
   const userId = req.user?.id;
+  console.log(req.body);
   const result = await MealService.createMeal({ ...req.body, userId });
   sendResponse_default(res, {
     statusCode: StatusCodes7.CREATED,
@@ -1108,6 +1561,16 @@ var getMealsById2 = catchAsync_default(async (req, res) => {
     data: result
   });
 });
+var getProviderMeals2 = catchAsync_default(async (req, res) => {
+  const userId = req.user?.id;
+  const result = await MealService.getProviderMeals(userId);
+  sendResponse_default(res, {
+    statusCode: StatusCodes7.OK,
+    success: true,
+    message: "Provider meals retrieved successfully",
+    data: result
+  });
+});
 var updateMeal2 = catchAsync_default(async (req, res) => {
   const mealId = req.params.id;
   const userId = req.user?.id;
@@ -1134,12 +1597,81 @@ var deleteMeal2 = catchAsync_default(async (req, res) => {
     data: result
   });
 });
+var getProviderOrders2 = catchAsync_default(async (req, res) => {
+  const userId = req.user?.id;
+  const result = await MealService.getProviderOrders(userId);
+  sendResponse_default(res, {
+    statusCode: StatusCodes7.OK,
+    success: true,
+    message: "Provider orders retrieved successfully",
+    data: result
+  });
+});
+var updateOrderStatus2 = catchAsync_default(async (req, res) => {
+  const userId = req.user?.id;
+  const orderId = req.params.id;
+  const status = req.body.status;
+  const result = await MealService.updateOrderStatus(
+    userId,
+    orderId,
+    status
+  );
+  sendResponse_default(res, {
+    statusCode: StatusCodes7.OK,
+    success: true,
+    message: "Order status updated successfully",
+    data: result
+  });
+});
+var getMealTypes2 = catchAsync_default(async (req, res) => {
+  const result = await MealService.getMealTypes();
+  sendResponse_default(res, {
+    statusCode: StatusCodes7.OK,
+    success: true,
+    message: "Meal types retrieved successfully",
+    data: result
+  });
+});
+var getDietaryOptions2 = catchAsync_default(async (req, res) => {
+  const result = await MealService.getDietaryOptions();
+  sendResponse_default(res, {
+    statusCode: StatusCodes7.OK,
+    success: true,
+    message: "Dietary options retrieved successfully",
+    data: result
+  });
+});
+var getCuisineOptions2 = catchAsync_default(async (req, res) => {
+  const result = await MealService.getCuisineOptions();
+  sendResponse_default(res, {
+    statusCode: StatusCodes7.OK,
+    success: true,
+    message: "Cuisine options retrieved successfully",
+    data: result
+  });
+});
+var getPopularMeals2 = catchAsync_default(async (req, res) => {
+  const result = await MealService.getPopularMeals();
+  sendResponse_default(res, {
+    statusCode: StatusCodes7.OK,
+    success: true,
+    message: "Popular meals retrieved successfully",
+    data: result
+  });
+});
 var MealController = {
   createMeal: createMeal2,
   getAllMeals: getAllMeals2,
   getMealsById: getMealsById2,
   updateMeal: updateMeal2,
-  deleteMeal: deleteMeal2
+  deleteMeal: deleteMeal2,
+  getMealTypes: getMealTypes2,
+  getDietaryOptions: getDietaryOptions2,
+  getCuisineOptions: getCuisineOptions2,
+  getProviderMeals: getProviderMeals2,
+  getProviderOrders: getProviderOrders2,
+  updateOrderStatus: updateOrderStatus2,
+  getPopularMeals: getPopularMeals2
 };
 
 // src/app/modules/meal/meal.validation.ts
@@ -1180,17 +1712,36 @@ var MealValidation = {
 var router2 = express2.Router();
 router2.get("/", MealController.getAllMeals);
 router2.get("/:id", MealController.getMealsById);
+router2.get("/types/list", MealController.getMealTypes);
+router2.get("/dietary-options/list", MealController.getDietaryOptions);
+router2.get("/cuisine-options/list", MealController.getCuisineOptions);
 router2.post(
   "/",
   Auth_default(UserRole.provider),
   ValidateRequest_default(MealValidation.mealCreateZodSchema),
   MealController.createMeal
 );
+router2.get(
+  "/provider/meals",
+  Auth_default(UserRole.provider),
+  MealController.getProviderMeals
+);
+router2.get("/popular/list", MealController.getPopularMeals);
 router2.put(
   "/:id",
   Auth_default(UserRole.provider),
   ValidateRequest_default(MealValidation.mealUpdateZodSchema),
   MealController.updateMeal
+);
+router2.get(
+  "/provider/orders",
+  Auth_default(UserRole.provider),
+  MealController.getProviderOrders
+);
+router2.put(
+  "/orders/:id/status",
+  Auth_default(UserRole.provider),
+  MealController.updateOrderStatus
 );
 router2.delete(
   "/:id",
@@ -1211,6 +1762,27 @@ import { StatusCodes as StatusCodes9 } from "http-status-codes";
 init_esm_shims();
 import { StatusCodes as StatusCodes8 } from "http-status-codes";
 var createOrder = async (payload, customerId) => {
+  const provider = await prisma.providerProfile.findFirst({
+    where: {
+      id: payload.providerId
+    },
+    include: {
+      user: {
+        select: {
+          status: true
+        }
+      }
+    }
+  });
+  if (!provider) {
+    throw new ApiError_default(StatusCodes8.NOT_FOUND, "Provider not found or inactive");
+  }
+  if (provider.user.status === "inactive") {
+    throw new ApiError_default(
+      StatusCodes8.FORBIDDEN,
+      "This provider is currently inactive. Orders cannot be placed."
+    );
+  }
   const mealsId = payload.items.map((item) => item.mealId);
   const meals = await prisma.meal.findMany({
     where: {
@@ -1230,8 +1802,10 @@ var createOrder = async (payload, customerId) => {
       price: meal.price
     };
   });
+  const orderNumber = `ORD-${Date.now()}`;
   const order = await prisma.order.create({
     data: {
+      orderNumber,
       userId: customerId,
       providerId: payload.providerId,
       address: payload.address,
@@ -1279,8 +1853,17 @@ var getOrderById = async (orderId, customerId) => {
       items: {
         include: {
           meal: {
-            include: { provider: { select: { id: true, shopName: true } } }
+            include: {
+              provider: { select: { id: true, shopName: true, phone: true } }
+            }
           }
+        }
+      },
+      provider: {
+        select: {
+          id: true,
+          shopName: true,
+          phone: true
         }
       }
     }
@@ -1290,7 +1873,7 @@ var getOrderById = async (orderId, customerId) => {
   }
   return order;
 };
-var updateOrderStatus = async (orderId, status, providerId) => {
+var updateOrderStatus3 = async (orderId, status, providerId) => {
   const order = await prisma.order.findFirst({
     where: {
       id: orderId,
@@ -1319,11 +1902,109 @@ var updateOrderStatus = async (orderId, status, providerId) => {
   });
   return updatedOrder;
 };
+var trackOrderStatus = async (orderId, userId) => {
+  const order = await prisma.order.findUnique({
+    where: {
+      orderNumber: orderId,
+      userId
+    },
+    select: {
+      id: true,
+      status: true,
+      address: true,
+      totalAmount: true,
+      createdAt: true,
+      updatedAt: true,
+      items: {
+        include: {
+          meal: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              image: true
+            }
+          }
+        }
+      },
+      provider: {
+        select: {
+          id: true,
+          shopName: true,
+          phone: true
+        }
+      }
+    }
+  });
+  if (!order) {
+    throw new ApiError_default(StatusCodes8.NOT_FOUND, "Order not found");
+  }
+  return order;
+};
+var cancelOrder = async (orderId, customerId) => {
+  const order = await prisma.order.findFirst({
+    where: {
+      id: orderId,
+      userId: customerId
+    }
+  });
+  if (!order) {
+    throw new ApiError_default(StatusCodes8.NOT_FOUND, "Order not found");
+  }
+  if (order.status === client_exports.OrderStatus.CANCELLED) {
+    throw new ApiError_default(StatusCodes8.BAD_REQUEST, "Order is already cancelled");
+  }
+  const updatedOrder = await prisma.order.update({
+    where: {
+      id: orderId
+    },
+    data: {
+      status: client_exports.OrderStatus.CANCELLED
+    },
+    include: {
+      items: {
+        include: {
+          meal: {
+            select: { id: true, name: true, price: true }
+          }
+        }
+      }
+    }
+  });
+  return updatedOrder;
+};
+var getAllOrders = async () => {
+  const orders = await prisma.order.findMany({
+    include: {
+      items: {
+        include: {
+          meal: {
+            select: { id: true, name: true, price: true }
+          }
+        }
+      },
+      provider: {
+        select: {
+          id: true,
+          shopName: true,
+          phone: true
+        }
+      }
+    },
+    orderBy: {
+      createdAt: "desc"
+    }
+  });
+  return orders;
+};
 var OrderService = {
   createOrder,
   getMyOrders,
   getOrderById,
-  updateOrderStatus
+  updateOrderStatus: updateOrderStatus3,
+  trackOrderStatus,
+  cancelOrder,
+  getAllOrders
 };
 
 // src/app/modules/order/order.controller.ts
@@ -1359,7 +2040,7 @@ var getOrderById2 = catchAsync_default(async (req, res) => {
     data: result
   });
 });
-var updateOrderStatus2 = catchAsync_default(async (req, res) => {
+var updateOrderStatus4 = catchAsync_default(async (req, res) => {
   const orderId = req.params.id;
   const status = req.body.status;
   const providerId = req.user?.id;
@@ -1375,11 +2056,45 @@ var updateOrderStatus2 = catchAsync_default(async (req, res) => {
     data: result
   });
 });
+var trackOrderStatus2 = catchAsync_default(async (req, res) => {
+  const orderId = req.params.id;
+  const userId = req.user?.id;
+  const result = await OrderService.trackOrderStatus(orderId, userId);
+  sendResponse_default(res, {
+    statusCode: StatusCodes9.OK,
+    success: true,
+    message: "Order status tracked successfully",
+    data: result
+  });
+});
+var cancelOrder2 = catchAsync_default(async (req, res) => {
+  const orderId = req.params.id;
+  const userId = req.user?.id;
+  const result = await OrderService.cancelOrder(orderId, userId);
+  sendResponse_default(res, {
+    statusCode: StatusCodes9.OK,
+    success: true,
+    message: "Order cancelled successfully",
+    data: result
+  });
+});
+var getAllOrders2 = catchAsync_default(async (req, res) => {
+  const result = await OrderService.getAllOrders();
+  sendResponse_default(res, {
+    statusCode: StatusCodes9.OK,
+    success: true,
+    message: "All orders retrieved successfully",
+    data: result
+  });
+});
 var OrderController = {
   createOrder: createOrder2,
   getMyOrders: getMyOrders2,
   getOrderById: getOrderById2,
-  updateOrderStatus: updateOrderStatus2
+  updateOrderStatus: updateOrderStatus4,
+  trackOrderStatus: trackOrderStatus2,
+  cancelOrder: cancelOrder2,
+  getAllOrders: getAllOrders2
 };
 
 // src/app/modules/order/order.validation.ts
@@ -1431,6 +2146,21 @@ router3.post(
   Auth_default(UserRole.customer),
   ValidateRequest_default(OrderValidation.createOrderSchema),
   OrderController.createOrder
+);
+router3.get(
+  "/track/:id",
+  Auth_default(UserRole.customer, UserRole.provider, UserRole.admin),
+  OrderController.trackOrderStatus
+);
+router3.patch(
+  "/cancel/:id",
+  Auth_default(UserRole.customer),
+  OrderController.cancelOrder
+);
+router3.get(
+  "/all/orders",
+  Auth_default(UserRole.admin),
+  OrderController.getAllOrders
 );
 var OrderRoutes = router3;
 
@@ -1513,7 +2243,14 @@ var getAllProviders = async () => {
           id: true,
           name: true,
           price: true,
-          isAvailable: true
+          isAvailable: true,
+          reviews: true,
+          category: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
         }
       }
     },
@@ -1542,6 +2279,7 @@ var getProviderById = async (providerId) => {
           name: true,
           price: true,
           isAvailable: true,
+          reviews: true,
           category: {
             select: {
               id: true,
@@ -1645,13 +2383,412 @@ router4.post(
 );
 var ProviderRoutes = router4;
 
-// src/app/modules/user/user.route.ts
+// src/app/modules/review/review.routes.ts
 init_esm_shims();
 import express5 from "express";
 
-// src/app/modules/user/user.controller.ts
+// src/app/modules/review/review.controller.ts
+init_esm_shims();
+import { StatusCodes as StatusCodes13 } from "http-status-codes";
+
+// src/app/modules/review/review.service.ts
 init_esm_shims();
 import { StatusCodes as StatusCodes12 } from "http-status-codes";
+var createReview = async (data) => {
+  const { userId, mealId, rating, comment } = data;
+  if (rating < 1 || rating > 5) {
+    throw new ApiError_default(
+      StatusCodes12.BAD_REQUEST,
+      "Rating must be between 1 and 5"
+    );
+  }
+  const meal = await prisma.meal.findUnique({
+    where: { id: mealId }
+  });
+  if (!meal) {
+    throw new ApiError_default(StatusCodes12.NOT_FOUND, "Meal not found");
+  }
+  const existingReview = await prisma.review.findFirst({
+    where: {
+      userId,
+      mealId
+    }
+  });
+  if (existingReview) {
+    throw new ApiError_default(
+      StatusCodes12.BAD_REQUEST,
+      "You have already reviewed this meal"
+    );
+  }
+  const hasOrdered = await prisma.order.findFirst({
+    where: {
+      userId,
+      status: "DELIVERED",
+      items: {
+        some: {
+          mealId
+        }
+      }
+    }
+  });
+  if (!hasOrdered) {
+    throw new ApiError_default(
+      StatusCodes12.BAD_REQUEST,
+      "You can only review meals you have ordered and received"
+    );
+  }
+  const review = await prisma.review.create({
+    data: {
+      userId,
+      mealId,
+      rating,
+      comment: comment || null
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true
+        }
+      },
+      meal: {
+        select: {
+          id: true,
+          name: true
+        }
+      }
+    }
+  });
+  return review;
+};
+var getMealReviews = async (mealId) => {
+  const reviews = await prisma.review.findMany({
+    where: { mealId },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true
+        }
+      }
+    },
+    orderBy: {
+      createdAt: "desc"
+    }
+  });
+  const averageRating = reviews.length > 0 ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length : 0;
+  return {
+    reviews,
+    averageRating,
+    totalReviews: reviews.length
+  };
+};
+var getUserReviews = async (userId) => {
+  const reviews = await prisma.review.findMany({
+    where: { userId },
+    include: {
+      meal: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+          price: true
+        }
+      }
+    },
+    orderBy: {
+      createdAt: "desc"
+    }
+  });
+  return reviews;
+};
+var getProviderReviews = async (providerId) => {
+  const providerMeals = await prisma.meal.findMany({
+    where: { providerId },
+    select: { id: true }
+  });
+  const mealIds = providerMeals.map((meal) => meal.id);
+  const reviews = await prisma.review.findMany({
+    where: {
+      mealId: {
+        in: mealIds
+      }
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true
+        }
+      },
+      meal: {
+        select: {
+          id: true,
+          name: true,
+          image: true
+        }
+      }
+    },
+    orderBy: {
+      createdAt: "desc"
+    }
+  });
+  const totalReviews = reviews.length;
+  const averageRating = totalReviews > 0 ? reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews : 0;
+  const ratingDistribution = {
+    5: reviews.filter((r) => r.rating === 5).length,
+    4: reviews.filter((r) => r.rating === 4).length,
+    3: reviews.filter((r) => r.rating === 3).length,
+    2: reviews.filter((r) => r.rating === 2).length,
+    1: reviews.filter((r) => r.rating === 1).length
+  };
+  return {
+    reviews,
+    totalReviews,
+    averageRating,
+    ratingDistribution
+  };
+};
+var updateReview = async (reviewId, userId, data) => {
+  const existingReview = await prisma.review.findUnique({
+    where: { id: reviewId }
+  });
+  if (!existingReview) {
+    throw new ApiError_default(StatusCodes12.NOT_FOUND, "Review not found");
+  }
+  if (existingReview.userId !== userId) {
+    throw new ApiError_default(
+      StatusCodes12.FORBIDDEN,
+      "You can only update your own reviews"
+    );
+  }
+  if (data.rating && (data.rating < 1 || data.rating > 5)) {
+    throw new ApiError_default(
+      StatusCodes12.BAD_REQUEST,
+      "Rating must be between 1 and 5"
+    );
+  }
+  const updatedReview = await prisma.review.update({
+    where: { id: reviewId },
+    data,
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true
+        }
+      },
+      meal: {
+        select: {
+          id: true,
+          name: true
+        }
+      }
+    }
+  });
+  return updatedReview;
+};
+var deleteReview = async (reviewId, userId) => {
+  const existingReview = await prisma.review.findUnique({
+    where: { id: reviewId }
+  });
+  if (!existingReview) {
+    throw new ApiError_default(StatusCodes12.NOT_FOUND, "Review not found");
+  }
+  if (existingReview.userId !== userId) {
+    throw new ApiError_default(
+      StatusCodes12.FORBIDDEN,
+      "You can only delete your own reviews"
+    );
+  }
+  await prisma.review.delete({
+    where: { id: reviewId }
+  });
+  return { message: "Review deleted successfully" };
+};
+var reviewService = {
+  createReview,
+  getMealReviews,
+  getUserReviews,
+  getProviderReviews,
+  updateReview,
+  deleteReview
+};
+
+// src/app/modules/review/review.controller.ts
+var createReview2 = catchAsync_default(async (req, res) => {
+  const userId = req.user?.id;
+  const { mealId, rating, comment } = req.body;
+  if (!userId) {
+    return sendResponse_default(res, {
+      statusCode: StatusCodes13.UNAUTHORIZED,
+      success: false,
+      message: "Unauthorized",
+      data: null
+    });
+  }
+  const result = await reviewService.createReview({
+    userId,
+    mealId,
+    rating,
+    comment
+  });
+  sendResponse_default(res, {
+    statusCode: StatusCodes13.CREATED,
+    success: true,
+    message: "Review created successfully",
+    data: result
+  });
+});
+var getMealReviews2 = catchAsync_default(async (req, res) => {
+  const { mealId } = req.params;
+  const result = await reviewService.getMealReviews(mealId);
+  sendResponse_default(res, {
+    statusCode: StatusCodes13.OK,
+    success: true,
+    message: "Reviews fetched successfully",
+    data: result
+  });
+});
+var getUserReviews2 = catchAsync_default(async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    return sendResponse_default(res, {
+      statusCode: StatusCodes13.UNAUTHORIZED,
+      success: false,
+      message: "Unauthorized",
+      data: null
+    });
+  }
+  const result = await reviewService.getUserReviews(userId);
+  sendResponse_default(res, {
+    statusCode: StatusCodes13.OK,
+    success: true,
+    message: "User reviews fetched successfully",
+    data: result
+  });
+});
+var getProviderReviews2 = catchAsync_default(async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    return sendResponse_default(res, {
+      statusCode: StatusCodes13.UNAUTHORIZED,
+      success: false,
+      message: "Unauthorized",
+      data: null
+    });
+  }
+  const provider = await prisma.providerProfile.findUnique({
+    where: { userId }
+  });
+  if (!provider) {
+    return sendResponse_default(res, {
+      statusCode: StatusCodes13.FORBIDDEN,
+      success: false,
+      message: "Provider profile not found",
+      data: null
+    });
+  }
+  const result = await reviewService.getProviderReviews(provider.id);
+  sendResponse_default(res, {
+    statusCode: StatusCodes13.OK,
+    success: true,
+    message: "Provider reviews fetched successfully",
+    data: result
+  });
+});
+var updateReview2 = catchAsync_default(async (req, res) => {
+  const userId = req.user?.id;
+  const { reviewId } = req.params;
+  const { rating, comment } = req.body;
+  if (!userId) {
+    return sendResponse_default(res, {
+      statusCode: StatusCodes13.UNAUTHORIZED,
+      success: false,
+      message: "Unauthorized",
+      data: null
+    });
+  }
+  const result = await reviewService.updateReview(reviewId, userId, {
+    rating,
+    comment
+  });
+  sendResponse_default(res, {
+    statusCode: StatusCodes13.OK,
+    success: true,
+    message: "Review updated successfully",
+    data: result
+  });
+});
+var deleteReview2 = catchAsync_default(async (req, res) => {
+  const userId = req.user?.id;
+  const { reviewId } = req.params;
+  if (!userId) {
+    return sendResponse_default(res, {
+      statusCode: StatusCodes13.UNAUTHORIZED,
+      success: false,
+      message: "Unauthorized",
+      data: null
+    });
+  }
+  const result = await reviewService.deleteReview(reviewId, userId);
+  sendResponse_default(res, {
+    statusCode: StatusCodes13.OK,
+    success: true,
+    message: "Review deleted successfully",
+    data: result
+  });
+});
+var reviewController = {
+  createReview: createReview2,
+  getMealReviews: getMealReviews2,
+  getUserReviews: getUserReviews2,
+  getProviderReviews: getProviderReviews2,
+  updateReview: updateReview2,
+  deleteReview: deleteReview2
+};
+
+// src/app/modules/review/review.routes.ts
+var router5 = express5.Router();
+router5.post(
+  "/",
+  Auth_default(UserRole.customer),
+  reviewController.createReview
+);
+router5.get("/meal/:mealId", reviewController.getMealReviews);
+router5.get(
+  "/user",
+  Auth_default(UserRole.customer),
+  reviewController.getUserReviews
+);
+router5.get(
+  "/provider",
+  Auth_default(UserRole.provider),
+  reviewController.getProviderReviews
+);
+router5.put(
+  "/:reviewId",
+  Auth_default(UserRole.customer),
+  reviewController.updateReview
+);
+router5.delete(
+  "/:reviewId",
+  Auth_default(UserRole.customer),
+  reviewController.deleteReview
+);
+var reviewRoutes = router5;
+
+// src/app/modules/user/user.route.ts
+init_esm_shims();
+import express6 from "express";
+
+// src/app/modules/user/user.controller.ts
+init_esm_shims();
+import { StatusCodes as StatusCodes14 } from "http-status-codes";
 
 // src/app/modules/user/user.service.ts
 init_esm_shims();
@@ -1671,17 +2808,33 @@ var updateUserStatus = async (userId, newStatus) => {
   });
   return updatedUser;
 };
+var updateProfile = async (req, data) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    throw new Error("User not authenticated");
+  }
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      ...data.name && { name: data.name },
+      ...data.phone && { phone: data.phone },
+      ...data.image && { image: data.image }
+    }
+  });
+  return updatedUser;
+};
 var UserService = {
   getCurrentUser,
   getAllUsers,
-  updateUserStatus
+  updateUserStatus,
+  updateProfile
 };
 
 // src/app/modules/user/user.controller.ts
 var getCurrentUser2 = catchAsync_default(async (req, res) => {
   const result = await UserService.getCurrentUser(req);
   sendResponse_default(res, {
-    statusCode: StatusCodes12.OK,
+    statusCode: StatusCodes14.OK,
     success: true,
     message: "Current user retrieved successfully",
     data: result
@@ -1690,7 +2843,7 @@ var getCurrentUser2 = catchAsync_default(async (req, res) => {
 var getAllUsers2 = catchAsync_default(async (req, res) => {
   const result = await UserService.getAllUsers();
   sendResponse_default(res, {
-    statusCode: StatusCodes12.OK,
+    statusCode: StatusCodes14.OK,
     success: true,
     message: "All users retrieved successfully",
     data: result
@@ -1701,35 +2854,50 @@ var updateUserStatus2 = catchAsync_default(async (req, res) => {
   const newStatus = req.body.status;
   const result = await UserService.updateUserStatus(userId, newStatus);
   sendResponse_default(res, {
-    statusCode: StatusCodes12.OK,
+    statusCode: StatusCodes14.OK,
     success: true,
     message: "User status updated successfully",
+    data: result
+  });
+});
+var updateProfile2 = catchAsync_default(async (req, res) => {
+  const result = await UserService.updateProfile(req, req.body);
+  sendResponse_default(res, {
+    statusCode: StatusCodes14.OK,
+    success: true,
+    message: "Profile updated successfully",
     data: result
   });
 });
 var UserController = {
   getCurrentUser: getCurrentUser2,
   getAllUsers: getAllUsers2,
-  updateUserStatus: updateUserStatus2
+  updateUserStatus: updateUserStatus2,
+  updateProfile: updateProfile2
 };
 
 // src/app/modules/user/user.route.ts
-var router5 = express5.Router();
-router5.get(
+var router6 = express6.Router();
+router6.get(
   "/me",
   Auth_default(UserRole.admin, UserRole.customer, UserRole.provider),
   UserController.getCurrentUser
 );
-router5.get("/", Auth_default(UserRole.admin), UserController.getAllUsers);
-router5.patch(
+router6.get("/", Auth_default(UserRole.admin), UserController.getAllUsers);
+router6.patch(
   "/:id",
   Auth_default(UserRole.admin),
   UserController.updateUserStatus
 );
-var UserRoutes = router5;
+router6.patch(
+  "/profile/update",
+  Auth_default(UserRole.admin, UserRole.customer, UserRole.provider),
+  UserController.updateProfile
+);
+var UserRoutes = router6;
 
 // src/app/routes/index.ts
-var router6 = express6.Router();
+var router7 = express7.Router();
 var moduleRoutes = [
   {
     path: "/users",
@@ -1750,16 +2918,20 @@ var moduleRoutes = [
   {
     path: "/orders",
     routes: OrderRoutes
+  },
+  {
+    path: "/reviews",
+    routes: reviewRoutes
   }
 ];
-moduleRoutes.forEach((route) => router6.use(route.path, route.routes));
-var routes_default = router6;
+moduleRoutes.forEach((route) => router7.use(route.path, route.routes));
+var routes_default = router7;
 
 // src/app.ts
-var app = express7();
+var app = express8();
 app.set("trust proxy", 1);
-app.use(express7.json({ limit: "16kb" }));
-app.use(express7.urlencoded({ extended: true, limit: "16kb" }));
+app.use(express8.json({ limit: "16kb" }));
+app.use(express8.urlencoded({ extended: true, limit: "16kb" }));
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -1778,7 +2950,7 @@ app.all("/api/auth/*any", toNodeHandler(auth));
 app.get("/", (req, res) => {
   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
   sendResponse_default(res, {
-    statusCode: StatusCodes13.OK,
+    statusCode: StatusCodes15.OK,
     success: true,
     data: {
       message: "Server is running",
