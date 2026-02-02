@@ -1123,14 +1123,12 @@ var paginationSortingHelper = (options) => {
   const page = Number(options.page) || 1;
   const limit = Number(options.limit) || 10;
   const skip = (page - 1) * limit;
-  const totalPages = Math.ceil(page / limit);
   const sortBy = options.sortBy || "createdAt";
   const sortOrder = options.sortOrder || "desc";
   return {
     page,
     limit,
     skip,
-    totalPages,
     sortBy,
     sortOrder
   };
@@ -1260,15 +1258,14 @@ var getAllMeals = async (payload) => {
   if (!meals || meals.length === 0) {
     throw new ApiError_default(StatusCodes6.NOT_FOUND, "No meals found");
   }
+  const totalPages = Math.ceil(total / Number(payload.limit));
   return {
     data: meals,
     pagination: {
       total,
-      ...payload.page !== void 0 && { page: payload.page },
-      ...payload.limit !== void 0 && { limit: payload.limit },
-      ...payload.totalPages !== void 0 && {
-        totalPages: payload.totalPages
-      }
+      page: payload.page || 1,
+      limit: payload.limit || 10,
+      totalPages
     }
   };
 };
@@ -1534,13 +1531,12 @@ var createMeal2 = catchAsync_default(async (req, res) => {
 });
 var getAllMeals2 = catchAsync_default(async (req, res) => {
   const payload = req.query;
-  const { page, limit, skip, totalPages, sortBy, sortOrder } = PaginationSortingHelper_default(payload);
+  const { page, limit, skip, sortBy, sortOrder } = PaginationSortingHelper_default(payload);
   const result = await MealService.getAllMeals({
     ...payload,
     page,
     limit,
     skip,
-    totalPages,
     ...sortBy && { sortBy },
     ...sortOrder && { sortOrder }
   });
