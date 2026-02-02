@@ -2,6 +2,25 @@
 
 Backend API for FoodHub - A multi-vendor food delivery platform built with Node.js, Express, Prisma, and PostgreSQL.
 
+# Credentials for Testing
+
+- **Admin**
+  - Email:admin@gmail.com
+  - Password:admin@123
+
+- **Provider**
+  - Email:provider@gmail.com
+  - Password:provider@com
+
+- **Customer**
+  - Email:customer@gmail.com
+  - Password:customer@com
+
+# Live Demo
+
+- **Frontend:** [https://food-hub-client-eta.vercel.app](https://food-hub-client-eta.vercel.app)
+- **Backend API:** [https://assaignment-4-server.vercel.app](https://assaignment-4-server.vercel.app)
+
 ## 🛠️ Tech Stack
 
 - **Runtime:** Node.js
