@@ -16,12 +16,12 @@ const authMiddleware = (...roles: string[]) => {
           "Unauthorized! Please log in to access this resource.",
         );
       }
-      // if (session.user.emailVerified === false) {
-      //   throw new ApiError(
-      //     StatusCodes.FORBIDDEN,
-      //     "Please verify your email to access this resource.",
-      //   );
-      // }
+      if (session.user.emailVerified === false) {
+        throw new ApiError(
+          StatusCodes.FORBIDDEN,
+          "Please verify your email to access this resource.",
+        );
+      }
       if (session.user.status === UserStatus.inactive) {
         throw new ApiError(
           StatusCodes.FORBIDDEN,
