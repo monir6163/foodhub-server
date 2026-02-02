@@ -142,10 +142,11 @@ const updateOrderStatus = async (
   return updatedOrder;
 };
 
-const trackOrderStatus = async (orderId: string) => {
+const trackOrderStatus = async (orderId: string, userId: string) => {
   const order = await prisma.order.findUnique({
     where: {
       orderNumber: orderId,
+      userId: userId,
     },
     select: {
       id: true,

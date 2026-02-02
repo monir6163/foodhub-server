@@ -56,10 +56,11 @@ const updateOrderStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// track order status controller can be added here
+// Customer track their own order status
 const trackOrderStatus = catchAsync(async (req: Request, res: Response) => {
   const orderId = req.params.id as string;
-  const result = await OrderService.trackOrderStatus(orderId);
+  const userId = req.user?.id as string;
+  const result = await OrderService.trackOrderStatus(orderId, userId);
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
