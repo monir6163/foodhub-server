@@ -19,4 +19,10 @@ router.patch(
   UserController.updateUserStatus,
 );
 
+router.patch(
+  "/profile/update",
+  authMiddleware(UserRole.admin, UserRole.customer, UserRole.provider),
+  UserController.updateProfile,
+);
+
 export const UserRoutes = router;

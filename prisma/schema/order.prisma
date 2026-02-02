@@ -1,5 +1,6 @@
 model Order {
   id          String      @id @default(uuid())
+  orderNumber String?     @unique
   userId      String
   providerId  String
   totalAmount Float

@@ -56,9 +56,36 @@ const updateOrderStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// track order status controller can be added here
+const trackOrderStatus = catchAsync(async (req: Request, res: Response) => {
+  const orderId = req.params.id as string;
+  const result = await OrderService.trackOrderStatus(orderId);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Order status tracked successfully",
+    data: result,
+  });
+});
+
+// Customer cancels their own order
+const cancelOrder = catchAsync(async (req: Request, res: Response) => {
+  const orderId = req.params.id as string;
+  const userId = req.user?.id as string;
+  const result = await OrderService.cancelOrder(orderId, userId);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Order cancelled successfully",
+    data: result,
+  });
+});
+
 export const OrderController = {
   createOrder,
   getMyOrders,
   getOrderById,
   updateOrderStatus,
+  trackOrderStatus,
+  cancelOrder,
 };
