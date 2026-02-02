@@ -78,15 +78,16 @@ const getAllMeals = async (
   if (!meals || meals.length === 0) {
     throw new ApiError(StatusCodes.NOT_FOUND, "No meals found");
   }
+
+  const totalPages = Math.ceil(total / Number(payload.limit));
+
   return {
     data: meals as IMeal[],
     pagination: {
       total,
-      ...(payload.page !== undefined && { page: payload.page }),
-      ...(payload.limit !== undefined && { limit: payload.limit }),
-      ...(payload.totalPages !== undefined && {
-        totalPages: payload.totalPages,
-      }),
+      page: payload.page || 1,
+      limit: payload.limit || 10,
+      totalPages,
     },
   };
 };

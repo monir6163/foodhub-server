@@ -20,14 +20,13 @@ const createMeal = catchAsync(async (req: Request, res: Response) => {
 
 const getAllMeals = catchAsync(async (req: Request, res: Response) => {
   const payload = req.query as unknown as MealFilterPayload;
-  const { page, limit, skip, totalPages, sortBy, sortOrder } =
+  const { page, limit, skip, sortBy, sortOrder } =
     paginationSortingHelper(payload);
   const result = await MealService.getAllMeals({
     ...payload,
     page,
     limit,
     skip,
-    totalPages,
     ...(sortBy && { sortBy }),
     ...(sortOrder && { sortOrder }),
   });
