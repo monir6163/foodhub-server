@@ -10,4 +10,6 @@ model Review {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([userId, mealId], name: "unique_user_meal_review")
 }

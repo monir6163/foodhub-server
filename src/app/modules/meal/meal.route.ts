@@ -25,11 +25,32 @@ router.post(
   MealController.createMeal,
 );
 
+router.get(
+  "/provider/meals",
+  authMiddleware(UserRole.provider),
+  MealController.getProviderMeals,
+);
+
+// popular meals for homepage
+router.get("/popular/list", MealController.getPopularMeals);
+
 router.put(
   "/:id",
   authMiddleware(UserRole.provider),
   validateRequest(MealValidation.mealUpdateZodSchema),
   MealController.updateMeal,
+);
+
+router.get(
+  "/provider/orders",
+  authMiddleware(UserRole.provider),
+  MealController.getProviderOrders,
+);
+
+router.put(
+  "/orders/:id/status",
+  authMiddleware(UserRole.provider),
+  MealController.updateOrderStatus,
 );
 
 router.delete(

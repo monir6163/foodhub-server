@@ -8,6 +8,7 @@ import { MealService } from "./meal.service";
 
 const createMeal = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
+  console.log(req.body);
   const result = await MealService.createMeal({ ...req.body, userId });
   sendResponse<IMeal>(res, {
     statusCode: StatusCodes.CREATED,
@@ -49,6 +50,18 @@ const getMealsById = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// get their own provider meals
+const getProviderMeals = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const result = await MealService.getProviderMeals(userId as string);
+  sendResponse<MealListResponse>(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Provider meals retrieved successfully",
+    data: result,
+  });
+});
+// update their own provider meals
 const updateMeal = catchAsync(async (req: Request, res: Response) => {
   const mealId = req.params.id;
   const userId = req.user?.id;
@@ -64,7 +77,7 @@ const updateMeal = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-
+// delete their own provider meals
 const deleteMeal = catchAsync(async (req: Request, res: Response) => {
   const mealId = req.params.id as string;
   const userId = req.user?.id as string;
@@ -73,6 +86,36 @@ const deleteMeal = catchAsync(async (req: Request, res: Response) => {
     statusCode: StatusCodes.OK,
     success: true,
     message: "Meal deleted successfully",
+    data: result,
+  });
+});
+
+// get their own provider orders
+const getProviderOrders = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const result = await MealService.getProviderOrders(userId as string);
+  sendResponse<MealListResponse>(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Provider orders retrieved successfully",
+    data: result,
+  });
+});
+
+// Update order status their own provider orders
+const updateOrderStatus = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const orderId = req.params.id;
+  const status = req.body.status;
+  const result = await MealService.updateOrderStatus(
+    userId as string,
+    orderId as string,
+    status,
+  );
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Order status updated successfully",
     data: result,
   });
 });
@@ -110,6 +153,17 @@ const getCuisineOptions = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// popular meals for homepage
+const getPopularMeals = catchAsync(async (req: Request, res: Response) => {
+  const result = await MealService.getPopularMeals();
+  sendResponse<MealListResponse>(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Popular meals retrieved successfully",
+    data: result,
+  });
+});
+
 export const MealController = {
   createMeal,
   getAllMeals,
@@ -119,4 +173,8 @@ export const MealController = {
   getMealTypes,
   getDietaryOptions,
   getCuisineOptions,
+  getProviderMeals,
+  getProviderOrders,
+  updateOrderStatus,
+  getPopularMeals,
 };

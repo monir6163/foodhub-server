@@ -82,6 +82,17 @@ const cancelOrder = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// get all orders - admin only
+const getAllOrders = catchAsync(async (req: Request, res: Response) => {
+  const result = await OrderService.getAllOrders();
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "All orders retrieved successfully",
+    data: result,
+  });
+});
+
 export const OrderController = {
   createOrder,
   getMyOrders,
@@ -89,4 +100,5 @@ export const OrderController = {
   updateOrderStatus,
   trackOrderStatus,
   cancelOrder,
+  getAllOrders,
 };

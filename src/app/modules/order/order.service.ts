@@ -5,6 +5,31 @@ import ApiError from "../../errors/ApiError";
 import { CreateOrderPayload } from "./order.interface";
 
 const createOrder = async (payload: CreateOrderPayload, customerId: string) => {
+  // Check if provider is active
+  const provider = await prisma.providerProfile.findFirst({
+    where: {
+      id: payload.providerId,
+    },
+    include: {
+      user: {
+        select: {
+          status: true,
+        },
+      },
+    },
+  });
+
+  if (!provider) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "Provider not found or inactive");
+  }
+
+  if (provider.user.status === "inactive") {
+    throw new ApiError(
+      StatusCodes.FORBIDDEN,
+      "This provider is currently inactive. Orders cannot be placed.",
+    );
+  }
+
   const mealsId = payload.items.map((item) => item.mealId);
 
   const meals = await prisma.meal.findMany({
@@ -222,6 +247,32 @@ const cancelOrder = async (orderId: string, customerId: string) => {
   return updatedOrder;
 };
 
+const getAllOrders = async () => {
+  const orders = await prisma.order.findMany({
+    include: {
+      items: {
+        include: {
+          meal: {
+            select: { id: true, name: true, price: true },
+          },
+        },
+      },
+      provider: {
+        select: {
+          id: true,
+          shopName: true,
+          phone: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return orders;
+};
+
 export const OrderService = {
   createOrder,
   getMyOrders,
@@ -229,4 +280,5 @@ export const OrderService = {
   updateOrderStatus,
   trackOrderStatus,
   cancelOrder,
+  getAllOrders,
 };

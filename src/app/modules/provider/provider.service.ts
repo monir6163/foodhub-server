@@ -6,7 +6,6 @@ import { IProviderProfile } from "./provider.interface";
 // Create provider profile or shop
 const createProviderProfile = async (payload: IProviderProfile) => {
   const { userId, shopName, description, address, phone, isOpen } = payload;
-
   const data = await prisma.$transaction(async (tx) => {
     const existingProfile = await tx.providerProfile.findUnique({
       where: { userId },

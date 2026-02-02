@@ -43,4 +43,11 @@ router.patch(
   OrderController.cancelOrder,
 );
 
+// get all orders - admin only
+router.get(
+  "/all/orders",
+  authMiddleware(UserRole.admin),
+  OrderController.getAllOrders,
+);
+
 export const OrderRoutes = router;

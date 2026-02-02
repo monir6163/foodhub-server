@@ -9,10 +9,21 @@ const router = express.Router();
 
 router.post(
   "/",
-  authMiddleware(UserRole.admin, UserRole.provider),
+  authMiddleware(UserRole.admin),
   validateRequest(CategoryValidation.categoryZodSchema),
   CategoryController.createCategory,
 );
 router.get("/", CategoryController.getAllCategories);
+router.patch(
+  "/:id",
+  authMiddleware(UserRole.admin),
+  validateRequest(CategoryValidation.categoryZodSchema),
+  CategoryController.updateCategory,
+);
+router.delete(
+  "/:id",
+  authMiddleware(UserRole.admin),
+  CategoryController.deleteCategory,
+);
 
 export const CategoryRoutes = router;
