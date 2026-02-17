@@ -373,8 +373,9 @@ __reExport(browser_exports, __toESM(require_enums()));
 
 // src/utils/auth.ts
 init_esm_shims();
-import { betterAuth } from "better-auth";
+import { APIError, betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { createAuthMiddleware } from "better-auth/api";
 
 // src/utils/mailService.ts
 init_esm_shims();
@@ -823,6 +824,23 @@ var auth = betterAuth({
         default: UserStatus.active
       }
     }
+  },
+  // before hooks for custom logic inactive users can't login
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx?.path === "/sign-in/email") {
+        const { email } = ctx?.body;
+        const user = await prisma.user.findUnique({
+          where: { email }
+        });
+        if (user?.status === UserStatus.inactive) {
+          throw new APIError("BAD_REQUEST", {
+            message: "Your account is inactive. Please contact support.",
+            statusCode: 400
+          });
+        }
+      }
+    })
   }
 });
 
