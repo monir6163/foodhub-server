@@ -7,6 +7,7 @@ export default defineConfig({
   target: "node20",
   outDir: "api",
   external: ["pg-native"],
+  bundle: true, // Bundles all dependencies into a single file
   skipNodeModulesBundle: true, // Prevents bundling node_modules (Avoids Vercel crashes)
   shims: true, // Fixes __dirname and other ESM compatibility issues
   outExtension() {
