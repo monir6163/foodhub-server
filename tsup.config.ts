@@ -6,9 +6,9 @@ export default defineConfig({
   platform: "node",
   target: "node20",
   outDir: "api",
-  external: ["pg-native"],
+  external: ["pg-native", "@prisma/client", ".prisma/client"],
   bundle: true, // Bundles all dependencies into a single file
-  skipNodeModulesBundle: true, // Prevents bundling node_modules (Avoids Vercel crashes)
+  skipNodeModulesBundle: true, // Prevents bundling node_modules
   shims: true, // Fixes __dirname and other ESM compatibility issues
   outExtension() {
     return { js: ".mjs" }; // Outputs server.mjs
