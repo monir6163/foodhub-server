@@ -675,19 +675,6 @@ var auth = betterAuth({
   }),
   baseURL: process.env.BETTER_AUTH_URL,
   trustedOrigins: [process.env.FRONTEND_URL],
-  advanced: {
-    crossSubdomainCookies: {
-      enabled: true
-    },
-    defaultCookieAttributes: {
-      sameSite: "none",
-      // cross-origin এর জন্য জরুরি
-      secure: true,
-      // HTTPS required
-      partitioned: true
-      // Chrome-এর CHIPS support
-    }
-  },
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
