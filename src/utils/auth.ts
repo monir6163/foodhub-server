@@ -19,18 +19,20 @@ export const auth = betterAuth({
 
   advanced: {
     cookies: {
-      session_token: {
+      state: {
         attributes: {
-          secure: true,
           sameSite: "none",
+          secure: true,
           httpOnly: true,
         },
       },
-    },
-    session: {
-      secure: true,
-      sameSite: "none",
-      httpOnly: true,
+      session_token: {
+        attributes: {
+          sameSite: "none",
+          secure: true,
+          httpOnly: true,
+        },
+      },
     },
   },
 
