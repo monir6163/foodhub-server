@@ -17,6 +17,23 @@ export const auth = betterAuth({
     requireEmailVerification: true,
   },
 
+  advanced: {
+    cookies: {
+      session_token: {
+        attributes: {
+          secure: true,
+          sameSite: "none",
+          httpOnly: true,
+        },
+      },
+    },
+    session: {
+      secure: true,
+      sameSite: "none",
+      httpOnly: true,
+    },
+  },
+
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,

@@ -3007,8 +3007,10 @@ async function connection() {
   try {
     await prisma.$connect();
     console.log("DB is connected succesfully ....!!");
-    server = app_default.listen(process.env.PORT, () => {
-      console.log(`Application is listening on port ${process.env.PORT}`);
+    server = app_default.listen(process.env.PORT || 8080, () => {
+      console.log(
+        `Application is listening on port ${process.env.PORT || 8080}...!`
+      );
     });
   } catch (err) {
     console.log("server connection error", err);
