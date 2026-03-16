@@ -5,12 +5,15 @@ import { UserRole, UserStatus } from "../../generated/prisma/enums";
 import { transporter } from "./mailService";
 import { prisma } from "./prisma";
 
+const FRONTEND_URL = process.env.FRONTEND_URL!.replace(/\/+$/, "");
+const BACKEND_URL = process.env.BETTER_AUTH_URL!.replace(/\/+$/, "");
+
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-  baseURL: process.env.BETTER_AUTH_URL!,
-  trustedOrigins: [process.env.FRONTEND_URL!],
+  baseURL: BACKEND_URL,
+  trustedOrigins: [FRONTEND_URL, BACKEND_URL],
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
@@ -40,6 +43,7 @@ export const auth = betterAuth({
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      redirectURI: `${FRONTEND_URL}/api/auth/callback/google`,
     },
   },
 
@@ -48,7 +52,7 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     sendVerificationEmail: async ({ user, url, token }, request) => {
       try {
-        const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
+        const verificationUrl = `${FRONTEND_URL}/verify-email?token=${token}`;
         const info = await transporter.sendMail({
           from: `"Food Hub" <${process.env.EMAIL_USER}>`,
           to: user.email,
