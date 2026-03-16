@@ -21,14 +21,14 @@ export const auth = betterAuth({
     cookies: {
       state: {
         attributes: {
-          sameSite: "lax",
+          sameSite: "none",
           secure: true,
           httpOnly: true,
         },
       },
       session_token: {
         attributes: {
-          sameSite: "lax",
+          sameSite: "none",
           secure: true,
           httpOnly: true,
         },
