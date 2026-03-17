@@ -1,6 +1,7 @@
 import { APIError, betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { createAuthMiddleware } from "better-auth/api";
+import { oAuthProxy } from "better-auth/plugins";
 import { UserRole, UserStatus } from "../../generated/prisma/enums";
 import { transporter } from "./mailService";
 import { prisma } from "./prisma";
@@ -27,6 +28,10 @@ export const auth = betterAuth({
           sameSite: "none",
           secure: true,
           httpOnly: true,
+          partitioned: true,
+          priority: "high",
+          cors: "cross-site",
+          path: "/",
         },
       },
       session_token: {
@@ -34,6 +39,10 @@ export const auth = betterAuth({
           sameSite: "none",
           secure: true,
           httpOnly: true,
+          partitioned: true,
+          priority: "high",
+          cors: "cross-site",
+          path: "/",
         },
       },
     },
@@ -223,4 +232,5 @@ export const auth = betterAuth({
       }
     }),
   },
+  plugins: [oAuthProxy()],
 });

@@ -376,6 +376,7 @@ init_esm_shims();
 import { APIError, betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { createAuthMiddleware } from "better-auth/api";
+import { oAuthProxy } from "better-auth/plugins";
 
 // src/utils/mailService.ts
 init_esm_shims();
@@ -669,21 +670,52 @@ var adapter = new PrismaPg({ connectionString });
 var prisma = new PrismaClient({ adapter });
 
 // src/utils/auth.ts
+var FRONTEND_URL = process.env.FRONTEND_URL.replace(/\/+$/, "");
+var BACKEND_URL = process.env.BETTER_AUTH_URL.replace(/\/+$/, "");
 var auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql"
   }),
-  baseURL: process.env.BETTER_AUTH_URL,
-  trustedOrigins: [process.env.FRONTEND_URL],
+  baseURL: BACKEND_URL,
+  trustedOrigins: [FRONTEND_URL, BACKEND_URL],
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
     requireEmailVerification: true
   },
+  advanced: {
+    cookies: {
+      state: {
+        attributes: {
+          sameSite: "none",
+          secure: true,
+          httpOnly: true,
+          partitioned: true,
+          priority: "high",
+          cors: "cross-site",
+          path: "/"
+        }
+      },
+      session_token: {
+        attributes: {
+          sameSite: "none",
+          secure: true,
+          httpOnly: true,
+          partitioned: true,
+          priority: "high",
+          cors: "cross-site",
+          path: "/"
+        }
+      }
+    }
+  },
   socialProviders: {
     google: {
+      prompt: "select_account consent",
+      accessType: "offline",
       clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      redirectURI: `${FRONTEND_URL}/api/auth/callback/google`
     }
   },
   // email verification
@@ -691,7 +723,7 @@ var auth = betterAuth({
     sendOnSignUp: true,
     sendVerificationEmail: async ({ user, url, token }, request) => {
       try {
-        const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
+        const verificationUrl = `${FRONTEND_URL}/verify-email?token=${token}`;
         const info = await transporter.sendMail({
           from: `"Food Hub" <${process.env.EMAIL_USER}>`,
           to: user.email,
@@ -855,7 +887,8 @@ var auth = betterAuth({
         }
       }
     })
-  }
+  },
+  plugins: [oAuthProxy()]
 });
 
 // src/app/errors/ApiError.ts
