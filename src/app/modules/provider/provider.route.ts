@@ -7,6 +7,7 @@ import { ProviderValidation } from "./provider.validation";
 
 const router = express.Router();
 router.get("/", ProviderController.getAllProviders);
+router.get("/popular", ProviderController.getPopularProvider);
 
 router.get("/:id", ProviderController.getProviderById);
 router.post(

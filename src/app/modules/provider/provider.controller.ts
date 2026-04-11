@@ -41,8 +41,19 @@ const getProviderById = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getPopularProvider = catchAsync(async (req: Request, res: Response) => {
+  const result = await ProviderService.getPopularProvider();
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Popular providers retrieved successfully",
+    data: result,
+  });
+});
+
 export const ProviderController = {
   createProviderProfile,
   getAllProviders,
   getProviderById,
+  getPopularProvider,
 };

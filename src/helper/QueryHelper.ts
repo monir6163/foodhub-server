@@ -65,5 +65,17 @@ export const buildMealQueryCondition = (
     });
   }
 
+  // filter by category
+  if (payload.category) {
+    andConditions.push({
+      category: {
+        name: {
+          equals: payload.category,
+          mode: "insensitive",
+        },
+      },
+    });
+  }
+
   return andConditions.length > 0 ? { AND: andConditions } : {};
 };

@@ -137,8 +137,58 @@ const getProviderById = async (providerId: string) => {
   return provider;
 };
 
+const getPopularProvider = async () => {
+  const providers = await prisma.providerProfile.findMany({
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      },
+      meals: {
+        select: {
+          id: true,
+          name: true,
+          price: true,
+          isAvailable: true,
+          reviews: true,
+          category: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  if (!providers) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "No providers found!");
+  }
+
+  // Sort providers by average meal rating
+  const sortedProviders = providers.sort((a, b) => {
+    const avgRatingA =
+      a.meals.reduce((sum, meal) => sum + meal.reviews.length, 0) /
+      (a.meals.length || 1);
+    const avgRatingB =
+      b.meals.reduce((sum, meal) => sum + meal.reviews.length, 0) /
+      (b.meals.length || 1);
+    return avgRatingB - avgRatingA;
+  });
+
+  // Return top 10 popular providers
+  return sortedProviders.slice(0, 10);
+};
+
 export const ProviderService = {
   createProviderProfile,
   getAllProviders,
   getProviderById,
+  getPopularProvider,
 };

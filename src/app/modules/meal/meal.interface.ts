@@ -40,6 +40,7 @@ export interface MealFilterPayload {
   cuisine?: string;
   mealType?: string;
   spiceLevel?: string;
+  category?: string;
   page?: number;
   limit?: number;
   skip?: number;
