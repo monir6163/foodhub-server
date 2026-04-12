@@ -1,5 +1,10 @@
-import { MealWhereInput } from "../../generated/prisma/models";
+import { BlogsWhereInput, MealWhereInput } from "../../generated/prisma/models";
 import { MealFilterPayload } from "../app/modules/meal/meal.interface";
+
+type BlogFilterPayload = {
+  search?: string;
+  userId?: string;
+};
 
 export const buildMealQueryCondition = (
   payload: MealFilterPayload,
@@ -86,6 +91,47 @@ export const buildMealQueryCondition = (
           },
         },
       ],
+    });
+  }
+
+  return andConditions.length > 0 ? { AND: andConditions } : {};
+};
+
+export const buildBlogQueryCondition = (
+  payload: BlogFilterPayload,
+): BlogsWhereInput => {
+  const andConditions: BlogsWhereInput[] = [];
+
+  if (payload.search) {
+    andConditions.push({
+      OR: [
+        {
+          title: {
+            contains: payload.search,
+            mode: "insensitive",
+          },
+        },
+        {
+          content: {
+            contains: payload.search,
+            mode: "insensitive",
+          },
+        },
+        {
+          slug: {
+            contains: payload.search,
+            mode: "insensitive",
+          },
+        },
+      ],
+    });
+  }
+
+  if (payload.userId) {
+    andConditions.push({
+      userId: {
+        equals: payload.userId,
+      },
     });
   }
 

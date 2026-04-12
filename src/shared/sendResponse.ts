@@ -11,9 +11,10 @@ const sendResponse = <T>(
       page: number;
       limit: number;
       total: number;
+      totalPages?: number;
     };
     data?: T | null | undefined;
-  }
+  },
 ) => {
   const response: any = {
     success: jsonData.success,

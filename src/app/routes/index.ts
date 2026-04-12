@@ -1,5 +1,6 @@
 import express from "express";
 import { aiRoutes } from "../modules/ai/ai.route";
+import { BlogRoute } from "../modules/blog/blog.route";
 import { CategoryRoutes } from "../modules/category/category.route";
 import { MealRoutes } from "../modules/meal/meal.route";
 import { OrderRoutes } from "../modules/order/order.route";
@@ -37,6 +38,10 @@ const moduleRoutes = [
   {
     path: "/ai",
     routes: aiRoutes,
+  },
+  {
+    path: "/blogs",
+    routes: BlogRoute,
   },
 ];
 

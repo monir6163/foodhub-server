@@ -272,8 +272,11 @@ Then provide the blog content with clear headings and paragraphs. The content mu
   const parsedBlog = parseBlogPostContent(generatedContent, topic);
   const slug = await generateUniqueBlogSlug(parsedBlog.title);
   const unsplashThumbnail = await fetchUnsplashThumbnail(topic);
-  const thumbnail =
-    unsplashThumbnail || parsedBlog.thumbnail || buildFallbackThumbnail(topic);
+  const thumbnail = unsplashThumbnail
+    ? unsplashThumbnail
+    : parsedBlog.thumbnail
+      ? parsedBlog.thumbnail
+      : buildFallbackThumbnail(topic);
   const savedBlog = await prisma.blogs.create({
     data: {
       title: parsedBlog.title,
@@ -306,7 +309,7 @@ const generateMealDescription = async (title: string, category: string) => {
   const prompt = `Write a short appetizing description for a FoodHub meal named "${title}" in the "${category}" category.
 
 Rules:
-- Keep it under 150 characters.
+- Keep it under 300 characters.
 - Make it sound premium, fresh, and persuasive.
 - Use FoodHub's actual menu style and avoid generic filler.
 - Do not mention that you are an AI.`;
@@ -314,58 +317,7 @@ Rules:
     "You are a senior food copywriter for FoodHub. You write concise, mouth-watering meal descriptions that match the restaurant menu style and help users decide quickly.";
   const generatedDescription = await chatAI(prompt, context);
 
-  const meal = await prisma.meal.findFirst({
-    where: {
-      name: { equals: title, mode: "insensitive" },
-      category: {
-        OR: [
-          { name: { equals: category, mode: "insensitive" } },
-          { slug: { equals: category, mode: "insensitive" } },
-        ],
-      },
-    },
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      category: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-        },
-      },
-    },
-  });
-
-  if (!meal) {
-    throw new ApiError(StatusCodes.NOT_FOUND, "Meal not found");
-  }
-
-  const savedMeal = await prisma.meal.update({
-    where: { id: meal.id },
-    data: {
-      description: generatedDescription,
-    },
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      category: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-        },
-      },
-      updatedAt: true,
-    },
-  });
-
-  return {
-    meal: savedMeal,
-    generatedDescription,
-  };
+  return generatedDescription;
 };
 
 const aiHealthTipSuggestion = async () => {
