@@ -12,6 +12,7 @@ export interface IMeal {
   cuisine: string;
   mealType: string;
   spiceLevel: string;
+  rating?: number;
   id?: string;
   createdAt?: Date;
   updatedAt?: Date;

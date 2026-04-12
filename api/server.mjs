@@ -1112,27 +1112,54 @@ ${mealCatalog || "No meals are available right now."}`
   const data = await response.json();
   return data.choices[0].message.content.trim();
 };
-var fetchUnsplashThumbnail = async (topic) => {
+var buildFallbackThumbnail = (topic) => {
+  const normalizedTopic = topic.trim() || "food";
+  const encodedTopic = encodeURIComponent(normalizedTopic);
+  return `https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1200&q=80&query=${encodedTopic}`;
+};
+var cleanSearchText = (value) => value.toLowerCase().replace(/[^a-z\s]/g, " ").replace(
+  /\b(top|best|items|item|foods|food|blog|post|in|for|with|the|a|an|of|and)\b/g,
+  " "
+).replace(/\s+/g, " ").trim();
+var fetchUnsplashThumbnail = async (topic, title) => {
   const accessKey = process.env.UNSPLASH_ACCESS_KEY;
   if (!accessKey) {
     return null;
   }
-  const searchQuery = encodeURIComponent(`${topic.trim() || "food"} food`);
-  const response = await fetch(
-    `https://api.unsplash.com/search/photos?query=${searchQuery}&per_page=1&orientation=landscape`,
-    {
-      headers: {
-        Authorization: `Client-ID ${accessKey}`,
-        "Accept-Version": "v1"
+  const rawTitle = (title || "").trim();
+  const rawTopic = topic.trim();
+  const cleanedTitle = cleanSearchText(rawTitle);
+  const cleanedTopic = cleanSearchText(rawTopic);
+  const queryCandidates = [
+    rawTitle,
+    rawTopic,
+    cleanedTitle ? `${cleanedTitle} bangladesh food` : "",
+    cleanedTopic ? `${cleanedTopic} bangladesh food` : "",
+    "healthy bangladeshi food",
+    "bangladesh traditional food"
+  ].filter(Boolean);
+  for (const queryText of queryCandidates) {
+    const searchQuery = encodeURIComponent(queryText);
+    const response = await fetch(
+      `https://api.unsplash.com/search/photos?query=${searchQuery}&per_page=5&orientation=landscape&content_filter=high`,
+      {
+        headers: {
+          Authorization: `Client-ID ${accessKey}`,
+          "Accept-Version": "v1"
+        }
       }
+    );
+    if (!response.ok) {
+      continue;
     }
-  );
-  if (!response.ok) {
-    return null;
+    const data = await response.json();
+    const photo = data?.results?.[0];
+    const imageUrl = photo?.urls?.regular ?? photo?.urls?.full ?? photo?.urls?.small ?? null;
+    if (imageUrl) {
+      return imageUrl;
+    }
   }
-  const data = await response.json();
-  const photo = data?.results?.[0];
-  return photo?.urls?.regular ?? photo?.urls?.full ?? photo?.urls?.small ?? null;
+  return null;
 };
 var parseBlogPostContent = (rawContent, fallbackTopic) => {
   const lines = rawContent.split(/\r?\n/).map((line) => line.trim());
@@ -1231,8 +1258,11 @@ Then provide the blog content with clear headings and paragraphs. The content mu
   const generatedContent = data.choices[0].message.content.trim();
   const parsedBlog = parseBlogPostContent(generatedContent, topic);
   const slug = await generateUniqueBlogSlug(parsedBlog.title);
-  const unsplashThumbnail = await fetchUnsplashThumbnail(topic);
-  const thumbnail = unsplashThumbnail;
+  const unsplashThumbnail = await fetchUnsplashThumbnail(
+    topic,
+    parsedBlog.title
+  );
+  const thumbnail = unsplashThumbnail ?? parsedBlog.thumbnail ?? buildFallbackThumbnail(parsedBlog.title || topic);
   const savedBlog = await prisma.blogs.create({
     data: {
       title: parsedBlog.title,
@@ -1907,6 +1937,16 @@ import { StatusCodes as StatusCodes11 } from "http-status-codes";
 // src/app/modules/meal/meal.service.ts
 init_esm_shims();
 import { StatusCodes as StatusCodes10 } from "http-status-codes";
+var withAverageRating = (meal) => {
+  const reviews = meal.reviews ?? [];
+  const rating = reviews.length > 0 ? Number(
+    (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
+  ) : 0;
+  return {
+    ...meal,
+    rating
+  };
+};
 var createMeal = async (payload) => {
   const {
     name,
@@ -1960,6 +2000,13 @@ var getAllMeals = async (payload) => {
     take: Number(payload.limit),
     skip: Number(payload.skip),
     where: buildMealQueryCondition(payload),
+    include: {
+      reviews: {
+        select: {
+          rating: true
+        }
+      }
+    },
     ...payload.sortBy && { orderBy: { [payload.sortBy]: payload.sortOrder } }
   });
   const total = await prisma.meal.count({
@@ -1969,8 +2016,9 @@ var getAllMeals = async (payload) => {
     throw new ApiError_default(StatusCodes10.NOT_FOUND, "No meals found");
   }
   const totalPages = Math.ceil(total / Number(payload.limit));
+  const mealsWithRating = meals.map((meal) => withAverageRating(meal));
   return {
-    data: meals,
+    data: mealsWithRating,
     pagination: {
       total,
       page: payload.page || 1,
@@ -2010,15 +2058,20 @@ var getProviderMeals = async (userId) => {
     where: { providerId: providerProfile.id },
     include: {
       category: true,
-      reviews: true,
+      reviews: {
+        select: {
+          rating: true
+        }
+      },
       provider: true
     },
     orderBy: {
       createdAt: "desc"
     }
   });
+  const mealsWithRating = meals.map((meal) => withAverageRating(meal));
   return {
-    data: meals,
+    data: mealsWithRating,
     pagination: {
       total: meals.length
     }
@@ -2138,7 +2191,11 @@ var getPopularMeals = async () => {
     },
     take: 8,
     include: {
-      reviews: true,
+      reviews: {
+        select: {
+          rating: true
+        }
+      },
       category: true,
       provider: {
         select: {
@@ -2149,8 +2206,9 @@ var getPopularMeals = async () => {
       }
     }
   });
+  const mealsWithRating = meals.map((meal) => withAverageRating(meal));
   return {
-    data: meals,
+    data: mealsWithRating,
     pagination: {
       total: meals.length
     }

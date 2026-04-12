@@ -10,6 +10,26 @@ import {
   UpdateMealPayload,
 } from "./meal.interface";
 
+const withAverageRating = <T extends { reviews?: { rating: number }[] }>(
+  meal: T,
+) => {
+  const reviews = meal.reviews ?? [];
+  const rating =
+    reviews.length > 0
+      ? Number(
+          (
+            reviews.reduce((sum, review) => sum + review.rating, 0) /
+            reviews.length
+          ).toFixed(1),
+        )
+      : 0;
+
+  return {
+    ...meal,
+    rating,
+  };
+};
+
 const createMeal = async (payload: IMeal & { userId?: string }) => {
   const {
     name,
@@ -70,6 +90,13 @@ const getAllMeals = async (
     take: Number(payload.limit),
     skip: Number(payload.skip),
     where: buildMealQueryCondition(payload),
+    include: {
+      reviews: {
+        select: {
+          rating: true,
+        },
+      },
+    },
     ...(payload.sortBy && { orderBy: { [payload.sortBy]: payload.sortOrder } }),
   });
   const total = await prisma.meal.count({
@@ -80,9 +107,10 @@ const getAllMeals = async (
   }
 
   const totalPages = Math.ceil(total / Number(payload.limit));
+  const mealsWithRating = meals.map((meal) => withAverageRating(meal));
 
   return {
-    data: meals as IMeal[],
+    data: mealsWithRating as unknown as IMeal[],
     pagination: {
       total,
       page: payload.page || 1,
@@ -127,7 +155,11 @@ const getProviderMeals = async (userId: string): Promise<MealListResponse> => {
     where: { providerId: providerProfile.id },
     include: {
       category: true,
-      reviews: true,
+      reviews: {
+        select: {
+          rating: true,
+        },
+      },
       provider: true,
     },
     orderBy: {
@@ -135,8 +167,10 @@ const getProviderMeals = async (userId: string): Promise<MealListResponse> => {
     },
   });
 
+  const mealsWithRating = meals.map((meal) => withAverageRating(meal));
+
   return {
-    data: meals as IMeal[],
+    data: mealsWithRating as unknown as IMeal[],
     pagination: {
       total: meals.length,
     },
@@ -281,7 +315,11 @@ const getPopularMeals = async (): Promise<MealListResponse> => {
     },
     take: 8,
     include: {
-      reviews: true,
+      reviews: {
+        select: {
+          rating: true,
+        },
+      },
       category: true,
       provider: {
         select: {
@@ -293,8 +331,10 @@ const getPopularMeals = async (): Promise<MealListResponse> => {
     },
   });
 
+  const mealsWithRating = meals.map((meal) => withAverageRating(meal));
+
   return {
-    data: meals as unknown as IMeal[],
+    data: mealsWithRating as unknown as IMeal[],
     pagination: {
       total: meals.length,
     },
