@@ -68,12 +68,24 @@ export const buildMealQueryCondition = (
   // filter by category
   if (payload.category) {
     andConditions.push({
-      category: {
-        name: {
-          equals: payload.category,
-          mode: "insensitive",
+      OR: [
+        {
+          category: {
+            name: {
+              equals: payload.category,
+              mode: "insensitive",
+            },
+          },
         },
-      },
+        {
+          category: {
+            slug: {
+              equals: payload.category,
+              mode: "insensitive",
+            },
+          },
+        },
+      ],
     });
   }
 

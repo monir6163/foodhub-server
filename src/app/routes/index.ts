@@ -1,4 +1,5 @@
 import express from "express";
+import { aiRoutes } from "../modules/ai/ai.route";
 import { CategoryRoutes } from "../modules/category/category.route";
 import { MealRoutes } from "../modules/meal/meal.route";
 import { OrderRoutes } from "../modules/order/order.route";
@@ -32,6 +33,10 @@ const moduleRoutes = [
   {
     path: "/reviews",
     routes: reviewRoutes,
+  },
+  {
+    path: "/ai",
+    routes: aiRoutes,
   },
 ];
 
