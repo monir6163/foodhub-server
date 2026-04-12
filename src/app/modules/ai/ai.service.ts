@@ -119,37 +119,71 @@ interface ParsedBlogPost {
 }
 
 const buildFallbackThumbnail = (topic: string) => {
-  const encodedTopic = encodeURIComponent(topic.trim() || "food");
-  return `https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1200&q=80&${encodedTopic}`;
+  const normalizedTopic = topic.trim() || "food";
+  const encodedTopic = encodeURIComponent(normalizedTopic);
+  return `https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1200&q=80&query=${encodedTopic}`;
 };
 
-const fetchUnsplashThumbnail = async (topic: string) => {
+const cleanSearchText = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z\s]/g, " ")
+    .replace(
+      /\b(top|best|items|item|foods|food|blog|post|in|for|with|the|a|an|of|and)\b/g,
+      " ",
+    )
+    .replace(/\s+/g, " ")
+    .trim();
+
+const fetchUnsplashThumbnail = async (topic: string, title?: string) => {
   const accessKey = process.env.UNSPLASH_ACCESS_KEY;
 
   if (!accessKey) {
     return null;
   }
 
-  const searchQuery = encodeURIComponent(`${topic.trim() || "food"} food`);
-  const response = await fetch(
-    `https://api.unsplash.com/search/photos?query=${searchQuery}&per_page=1&orientation=landscape`,
-    {
-      headers: {
-        Authorization: `Client-ID ${accessKey}`,
-        "Accept-Version": "v1",
-      },
-    },
-  );
+  const rawTitle = (title || "").trim();
+  const rawTopic = topic.trim();
+  const cleanedTitle = cleanSearchText(rawTitle);
+  const cleanedTopic = cleanSearchText(rawTopic);
 
-  if (!response.ok) {
-    return null;
+  const queryCandidates = [
+    rawTitle,
+    rawTopic,
+    cleanedTitle ? `${cleanedTitle} bangladesh food` : "",
+    cleanedTopic ? `${cleanedTopic} bangladesh food` : "",
+    "healthy bangladeshi food",
+    "bangladesh traditional food",
+  ].filter(Boolean);
+
+  for (const queryText of queryCandidates) {
+    const searchQuery = encodeURIComponent(queryText);
+    const response = await fetch(
+      `https://api.unsplash.com/search/photos?query=${searchQuery}&per_page=5&orientation=landscape&content_filter=high`,
+      {
+        headers: {
+          Authorization: `Client-ID ${accessKey}`,
+          "Accept-Version": "v1",
+        },
+      },
+    );
+
+    if (!response.ok) {
+      continue;
+    }
+
+    const data = await response.json();
+    const photo = data?.results?.[0];
+
+    const imageUrl =
+      photo?.urls?.regular ?? photo?.urls?.full ?? photo?.urls?.small ?? null;
+
+    if (imageUrl) {
+      return imageUrl;
+    }
   }
 
-  const data = await response.json();
-  const photo = data?.results?.[0];
-  return (
-    photo?.urls?.regular ?? photo?.urls?.full ?? photo?.urls?.small ?? null
-  );
+  return null;
 };
 
 const parseBlogPostContent = (rawContent: string, fallbackTopic: string) => {
@@ -271,12 +305,16 @@ Then provide the blog content with clear headings and paragraphs. The content mu
   const generatedContent = data.choices[0].message.content.trim();
   const parsedBlog = parseBlogPostContent(generatedContent, topic);
   const slug = await generateUniqueBlogSlug(parsedBlog.title);
-  const unsplashThumbnail = await fetchUnsplashThumbnail(topic);
-  const thumbnail = unsplashThumbnail
-    ? unsplashThumbnail
-    : parsedBlog.thumbnail
-      ? parsedBlog.thumbnail
-      : buildFallbackThumbnail(topic);
+
+  const unsplashThumbnail = await fetchUnsplashThumbnail(
+    topic,
+    parsedBlog.title,
+  );
+  const thumbnail =
+    unsplashThumbnail ??
+    parsedBlog.thumbnail ??
+    buildFallbackThumbnail(parsedBlog.title || topic);
+
   const savedBlog = await prisma.blogs.create({
     data: {
       title: parsedBlog.title,
