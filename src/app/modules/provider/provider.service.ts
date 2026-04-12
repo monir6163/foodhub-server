@@ -117,6 +117,7 @@ const getProviderById = async (providerId: string) => {
           price: true,
           isAvailable: true,
           reviews: true,
+          image: true,
           category: {
             select: {
               id: true,
