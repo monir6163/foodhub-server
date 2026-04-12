@@ -15,6 +15,7 @@ model User {
   providerProfile ProviderProfile?
   orders          Order[]
   reviews         Review[]
+  blogPosts       Blogs[]
 
   @@unique([email])
   @@map("user")

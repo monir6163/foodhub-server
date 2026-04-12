@@ -10,5 +10,12 @@ router.post(
   authMiddleware(UserRole.admin),
   aiController.blogPostGenerator,
 );
+router.post(
+  "/meal-description",
+  authMiddleware(UserRole.provider),
+  aiController.generateMealDescription,
+);
+
+router.get("/health-tip", aiController.aiHealthTipSuggestion);
 
 export const aiRoutes = router;
