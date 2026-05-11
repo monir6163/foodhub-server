@@ -272,3 +272,21 @@ Developed by [Monir Hossain]
 ---
 
 **Note:** This is the backend API for the FoodHub project. See the frontend repository for the complete application.
+
+# Docker command
+
+```bash
+# multi container setup with custom network and volume for data persistence
+docker network create foodhub-network
+docker volume create foodhub-data
+docker volume create foodhub-logs
+docker volume create server-node-modules
+docker volume create client-node-modules
+
+#check network and volumes
+docker network ls
+docker volume ls
+
+# Run PostgreSQL container
+docker run -d --name foodhub-db --network foodhub -e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_DB=foodhub -v foodhub-data:/var/lib/postgresql/data postgres:16-alpine
+```
